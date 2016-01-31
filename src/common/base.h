@@ -349,6 +349,56 @@ Str u_join(const Input &input,
 
 // }}}
 
+// {{{ defer
+
+namespace details {
+
+using RAII_Helper_Closure = std::function<void (void)>;
+
+class RAII_Helper
+{
+  RAII_Helper_Closure closure;
+public:
+  RAII_Helper() : closure() { }
+
+  template <class Lambda>
+  RAII_Helper(Lambda &&lambda)
+    : closure(std::forward<Lambda>(lambda))
+  { }
+
+  RAII_Helper(RAII_Helper &&)       = default;
+  RAII_Helper(const RAII_Helper &)  = delete;
+
+  RAII_Helper &operator =(RAII_Helper &&)      = default;
+  RAII_Helper &operator =(const RAII_Helper &) = default;
+
+  inline void retract() { closure = [] { }; }
+
+  inline void reset()
+  {
+    this->~RAII_Helper();
+    new (this) RAII_Helper;
+  }
+
+  ~RAII_Helper() { if (closure) closure(); }
+};
+
+struct RAII_Helper_Candy
+{
+  template <class Lambda>
+  inline RAII_Helper operator +(Lambda &&lambda) const
+  {
+    return RAII_Helper(std::forward<Lambda>(lambda));
+  }
+};
+
+} // namespace details
+
+#define u_defer           ::Xi::details::RAII_Helper_Candy() + []
+#define u_defer_with(...) ::Xi::details::RAII_Helper_Candy() + [__VA_ARGS__]
+
+// }}}
+
 // }}}
 
 } // namespace Xi
