@@ -65,14 +65,43 @@ template < class  Component_Type
          >
 class Select_Component_Container
   : public Component_Container<Component_Type, std::array<Component_Type *, Capacity>>
-{ };
+{
+  size_t last_pos = 0;
+public:
+  inline auto  end()          { return this->begin()  + last_pos; }
+  inline auto  end() const    { return this->cbegin() + last_pos; }
+  inline auto cend() const    { return this->cbegin() + last_pos; }
+
+  inline auto  rend()          { return this->rbegin()  + last_pos; }
+  inline auto  rend() const    { return this->crbegin() + last_pos; }
+  inline auto crend() const    { return this->crbegin() + last_pos; }
+
+  // TODO(ghlin) : back / size / empty / ... 2016-02-02 00:13:59
+
+  inline bool push_back(Component_Type *p)
+  {
+    if (last_pos == Capacity)
+      return false;
+
+    this->composed[last_pos++] = p;
+    return true;
+  }
+};
 
 
 
 template <class Component_Type>
 class Select_Component_Container<Component_Type, 0>
   : public Component_Container<Component_Type, std::vector<Component_Type *>>
-{ };
+{
+public:
+  inline bool push_back(Component_Type *p)
+  {
+    this->composed.push_back(p);
+
+    return true;
+  }
+};
 
 
 
