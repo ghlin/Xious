@@ -5,16 +5,51 @@
 
 namespace Xi { namespace init {
 
+class Init_Node;
 using Dep_List = std::set<Str>;
+
+// {{{ Exceptions
+class Init_Error : public std::runtime_error
+{
+public:
+  using std::runtime_error::runtime_error;
+};
+
+class Init_Already_Finished : public Init_Error
+{
+public:
+  Init_Already_Finished(const Str &operation);
+};
+
+class Dependences_Unsatisfied : public Init_Error
+{
+public:
+  Str_List         dependences;
+
+  Dependences_Unsatisfied(const std::vector<Init_Node *> &deps);
+};
+
+class Duplicated_Init_Node : public Init_Error
+{
+public:
+  Duplicated_Init_Node(const Str &name);
+
+  Str              duplicated_node;
+};
+// }}}
+
+class Init_Group;
 
 /**
  * 初始化节点
  */
-struct Init_Node
+class Init_Node : cc::Disable_Copy
 {
-  const Str       name; ///< 节点名字 作为在初始化组内标识节点的唯一标志
-  const Dep_List  deps; ///< 这个节点依赖的节点 必须是同一初始化组内 这里指定的节点的初始化动作会在这个节点之前完成
+  friend class Init_Group;
 
+  Str       name; ///< 节点名字 作为在初始化组内标识节点的唯一标志
+  Dep_List  deps; ///< 这个节点依赖的节点
+public:
   Init_Node(const Str &name, const Dep_List &deps);
 
   virtual ~Init_Node();
@@ -28,6 +63,17 @@ struct Init_Node
    * 执行注销动作
    */
   virtual void finalize()   = 0;
+
+  /**
+   * 取得节点的名字
+   */
+  inline
+  const Str &get_name() const { return name; }
+
+  /**
+   * 取得节点的依赖
+   */
+  const Dep_List &get_dependences() const { return deps; }
 
   /**
    * 文字呈现 调试用
@@ -54,10 +100,11 @@ Ptr<Init_Node> make_init_node(const Str      &name,
                               Init_Function   initializer = Default_Init_Node_Init(),
                               Init_Function   finalizer   = Default_Init_Node_Init())
 {
-  struct _Init_Node : Init_Node
+  class _Init_Node : public Init_Node
   {
     Init_Function initializer, finalizer;
 
+  public:
     virtual void initialize() override final
     { if (initializer) initializer(this); }
 
@@ -98,24 +145,32 @@ public:
 
   /**
    * 向组内添加节点 不必在此时满足依赖关系
+   * \note 添加重复节点会抛出Duplicated_Init_Node异常
+   * \note initialize调用过以后调用此方法会抛出Init_Already_Finished异常
    */
-  Init_Group *register_node(Ptr<Init_Node> &&init_node);
+  virtual Init_Group *register_node(Ptr<Init_Node> &&init_node);
 
   /**
    * 以合适的顺序执行初始化动作
-   * \note 未满足依赖的节点会被忽略
+   * \note 存在未满足依赖的节点会抛出Dependences_Unsatisfied异常
+   * \note 重复调用会抛出Init_Already_Finished
    */
   virtual void initialize() override final;
 
   /**
    * 以合适的顺序执行注销动作
-   * \note 未满足依赖的节点会被忽略
+   * \note 存在未满足依赖的节点会抛出Dependences_Unsatisfied异常
    */
   virtual void finalize()   override final;
 
   virtual Str dump() const override final;
 };
 
+static inline
+Ptr<Init_Group> make_init_group(const Str &name)
+{
+  return std::make_unique<Init_Group>(name);
+}
 
 } // namespace init
 } // namespace Xi

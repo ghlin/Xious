@@ -1,8 +1,8 @@
 #ifndef BASE_H_INCLUDED_0VYM5UQO
 #define BASE_H_INCLUDED_0VYM5UQO
 
-#include "pp.h"
 #include "stdincl.h"
+#include <glm/glm.hpp>
 
 namespace Xi {
 
@@ -18,6 +18,9 @@ using std::uint32_t;
 using std::uint64_t;
 
 using std::size_t;
+
+using float_t = float;
+using glm::vec2;
 
 template <typename T>
 using Opt = std::experimental::optional<T>;
@@ -40,8 +43,6 @@ template <typename ...T>
 using Ptr = std::unique_ptr<T...>;
 
 // }}}
-
-
 
 // {{{ u_* utilities
 
@@ -403,12 +404,6 @@ struct RAII_Helper_Candy
 
 } // namespace Xi
 
-#define XI_IMPL_CLASS(Class) XI_JOIN(Class, _Impl)
-
-#define XI_PIMPL(Class)              \
-  class XI_IMPL_CLASS(Class);        \
-  friend class XI_IMPL_CLASS(Class); \
-  Ptr<XI_IMPL_CLASS(Class)> pimpl;   \
 
 
 #endif // end of include guard: BASE_H_INCLUDED_0VYM5UQO

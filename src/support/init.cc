@@ -2,6 +2,7 @@
 
 namespace Xi { namespace init {
 
+// {{{ make node
 Ptr<Init_Node> make_init_node_from_descstr(
   const Str      &desc,
   Init_Function   initializer,
@@ -19,8 +20,10 @@ Ptr<Init_Node> make_init_node_from_descstr(
   return make_init_node(name, { dep_list.cbegin(), dep_list.cend() }, initializer, finalizer);
 }
 
+// }}}
 
 
+// {{{ Init_Node
 Init_Node::Init_Node(const Str      &name,
                      const Dep_List &deps)
   : name(name)
@@ -39,7 +42,10 @@ Str Init_Node::dump() const
   return name + " : [" + u_join(deps, ", ") + "]";
 }
 
+// }}}
 
+
+// {{{ Init_Group
 
 class Init_Group::Init_Group_Impl
 {
@@ -57,7 +63,6 @@ public:
   {
     return init_node->deps.empty();
   }
-
 
 
   Opt<size_t> try_install(Init_Node *init_node)
@@ -98,16 +103,9 @@ public:
   }
 
 
-  void register_node(Ptr<Init_Node> &&init_node)
+
+  void resolve_one(Init_Node *pnode)
   {
-    if (closed)
-      return;
-
-    auto pnode = init_node.get();
-
-    if (!got.insert(pnode->name).second)
-      return;
-
     if (is_simple_init_node(pnode))
     {
       ordered.push_back(pnode);
@@ -122,6 +120,16 @@ public:
     {
       pending.push_back(pnode);
     }
+  }
+
+
+  void register_node(Ptr<Init_Node> &&init_node)
+  {
+    if (closed)
+      throw Init_Already_Finished("register_node");
+
+    if (!got.insert(init_node->name).second)
+      throw Duplicated_Init_Node(init_node->name);
 
     pool.emplace_back(std::move(init_node));
   }
@@ -131,9 +139,15 @@ public:
   void initialize()
   {
     if (closed)
-      return;
+      throw Init_Already_Finished("initialize");
 
     closed = true;
+
+    for (auto &&node : pool)
+      resolve_one(node.get());
+
+    if (!pending.empty())
+      throw Dependences_Unsatisfied(pending);
 
     for (auto *init_node : ordered)
       init_node->initialize();
@@ -143,8 +157,8 @@ public:
 
   void finalize()
   {
-    if (closed)
-      return;
+    if (!closed)
+      throw Init_Error("`finalize' called before `initialize'.");
 
     for (auto pnode = ordered.rbegin(); pnode != ordered.rend(); ++pnode)
       (*pnode)->finalize();
@@ -194,6 +208,30 @@ void Init_Group::finalize()
   pimpl->finalize();
 }
 
+// }}}
+
+
+// {{{ Exceptions
+
+Init_Already_Finished::Init_Already_Finished(const Str &operation)
+  : Init_Error("Init already finished when calling `" + operation + "'")
+{ }
+
+
+
+Dependences_Unsatisfied::Dependences_Unsatisfied(
+  const std::vector<Init_Node *> &deps)
+  : Init_Error("Unsatisfied dependences found.")
+  , dependences(u_map(deps, [] (auto x) { return x->get_name(); }))
+{ }
+
+
+Duplicated_Init_Node::Duplicated_Init_Node(const Str &name)
+  : Init_Error("Duplicated init node found: " + name)
+  , duplicated_node(name)
+{ }
+
+// }}}
 
 
 } // namespace init

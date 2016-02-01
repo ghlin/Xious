@@ -123,6 +123,12 @@
 #define XI_INIT_PRIO_INTERNAL   (100000)
 #define XI_INIT_PRIO_DEFAULT    (XI_INIT_PRIO_INTERNAL + 1000 + 1)
 
+#define XI_IMPL_CLASS(Class) XI_JOIN(Class, _Impl)
+
+#define XI_PIMPL(Class)              \
+  class XI_IMPL_CLASS(Class);        \
+  friend class XI_IMPL_CLASS(Class); \
+  Ptr<XI_IMPL_CLASS(Class)> pimpl;   \
 
 // }}}
 

@@ -29,17 +29,20 @@
  * DEBUG MODE HERE
  */
 
-#define debug_check(expr)  Xi_runtime_check(expr)
-#define debug_log(...)     Xi_log(__VA_ARGS__)
-#define debug_only         if (false) { } else
+#define Xi_debug_check(expr)  Xi_runtime_check(expr)
+#define Xi_debug_log(...)     Xi_log(__VA_ARGS__)
+#define Xi_debug_only         if (false) { } else
+#define Xi_debug_cast         dynamic_cast
 
 #else
 
-#define debug_check(expr)  do { } while (false)
-#define debug_log(...)     do { } while (false)
-#define debug_only         if (true) { } else
+#define Xi_debug_check(expr)  do { } while (false)
+#define Xi_debug_log(...)     do { } while (false)
+#define Xi_debug_only         if (true) { } else
+#define Xi_debug_cast         static_cast
 
 #endif
+
 namespace Xi {
 
 struct Src_Location
@@ -127,6 +130,7 @@ Str xprintf_impl(const Args &...fmt_and_args)
 
 } // namespace details
 
+#pragma GCC diagnostic pop
 
 template <typename ...Args>
 static inline
@@ -134,7 +138,6 @@ auto xprintf(const Args          &...args)
 {
   return details::xprintf_impl(details::xprt_fwd(args)...);
 }
-
 
 template <typename ...Args>
 static inline
@@ -145,8 +148,6 @@ void tracef(const Src_Location     &sl,
   xprintf(stderr, fmt_and_args...);
   xprintf(stderr, "\n");
 }
-
-#pragma GCC diagnostic pop
 
 } // namespace Xi
 
