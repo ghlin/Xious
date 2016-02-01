@@ -6,7 +6,7 @@
 namespace Xi {
 
 /**
- * 大部分对象的基类
+ * 大部分对象的基类.
  */
 class Object
 {
@@ -18,7 +18,7 @@ public:
 };
 
 /**
- * 可复制
+ * 可复制对象.
  */
 class Cloneable_Object
   : public Object
@@ -27,10 +27,8 @@ public:
   virtual Object *clone() const;
 };
 
-using ref_count_t = uint64_t; ///< 非原子类型
-
 /**
- * 引用计数的对象
+ * 引用计数的对象.
  */
 class Ref_Counted_Object
   : public Object
@@ -85,6 +83,9 @@ public:
   virtual void finalize() override;
 };
 
+/**
+ * 对象池原型.
+ */
 class Object_Pool : public Object
 {
 public:
@@ -92,11 +93,14 @@ public:
   virtual void    release(Object *) = 0;
 
   /**
-   * 对象交由该池管理
+   * 独占控制权.
    */
   virtual void    manage(Object *)  = 0;
 };
 
+/**
+ * 构建器.
+ */
 class Object_Creator : public Object
 {
 public:
@@ -111,6 +115,9 @@ public:
   virtual void    destroy(Object *) = 0;
 };
 
+/**
+ * 默认new/delete构建器.
+ */
 template <class X>
 class X_Object_Creator : public Object_Creator
 {

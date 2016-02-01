@@ -6,6 +6,9 @@ namespace Xi {
 class Object;
 class Entity;
 class Renderer;
+class Component;
+
+class Instance_Init_Ctrl;
 
 } // namespace Xi
 

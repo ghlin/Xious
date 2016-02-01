@@ -8,19 +8,19 @@ namespace Xi { namespace init {
 
 
 /**
- * 取得初始化模块的根节点
+ * 取得初始化模块的根节点.
  *
- * \note 不要把根节点注册到其他Init_root上
+ * \note 不要把根节点注册到其他Init_root上.
  */
 attr_export Init_Group *bootstrap_root();
 
 /**
- * 执行初始化动作
+ * 执行初始化动作.
  */
 attr_export void      bootstrap_initialize();
 
 /**
- * 执行注销动作 并销毁bootstrap根
+ * 执行注销动作, 并销毁bootstrap根.
  */
 attr_export void      bootstrap_finalize();
 

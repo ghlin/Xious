@@ -1,55 +1,47 @@
 #ifndef UPDATEDETAILS_H_INCLUDED_E2VYDSLF
 #define UPDATEDETAILS_H_INCLUDED_E2VYDSLF
 
-
 #include "config.h"
+#include "phystatus.h"
+#include "artstatus.h"
+#include "evtstatus.h"
+#include "dirstatus.h"
 
 namespace Xi {
 
-using frame_t = uint64_t;
-
-struct Phy_Status
-{
-  vec2       position;
-  vec2       velocity;
-};
-
-struct Art_Status
-{
-  // TODO
-};
-
-struct Evt_Status
-{
-  // TODO
-};
-
-struct Dir_Status
-{
-  float_t  alpha;
-};
-
 struct Update_Details
 {
-  float_t       delta_time_elpased;
-  float_t       total_time_elpased;
+  enum Special_ID : size_t
+  {
+    Max_Specials = 16,
+    Max_Players  = 4,
+    Max_Bosses   = 4,
+  };
 
-  float_t       frame_prograss;
-  float_t       frame_rest;
+  union
+  {
+    Entity       *special[Max_Specials]; ///< 特化情况.
 
-  frame_t       delta_frame; ///< 应当为1
-  frame_t       total_frame;
+    struct                               ///< 一般情况.
+    {
+      Entity     *self;
+      Entity     *players[Max_Players];
+      Entity     *bosses[Max_Bosses];
+    };
+  };
 
-  Entity       *special;
-  Entity       *self;
+  float_t       delta_time_elpased; ///< 上一帧到这一帧流逝的时间, 首帧更新时, 其值是 1 / FPS
+  float_t       total_time_elpased; ///< 整个实例动作更新循环起到现在流逝的时间.
 
-  Renderer     *renderer;
+  float_t       frame_prograss;     ///< 当前进度.   \note 可能为NAN, 表示进度未知.
+  float_t       frame_rest;         ///< 剩余的帧数. \note 可能为NAN, 表示剩余帧数未知.
 
-  Phy_Status    last_phy_status;
-  Dir_Status    last_dir_status;
-  Art_Status    last_art_status;
-  Evt_Status    last_evt_status;
+  frame_t       delta_frame; ///< 应当为1.
+  frame_t       total_frame; ///< 总共更新了的帧数.
+
+  Renderer     *renderer;    ///< 渲染器.
 };
+
 
 
 } // namespace Xi

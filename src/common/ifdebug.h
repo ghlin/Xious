@@ -75,17 +75,25 @@ static inline
 std::enable_if_t<!std::is_class<std::decay_t<T>>::value, const T &>
 xprt_fwd(const T &t) { return t; }
 
+
+
 template <size_t N>
 static inline
 const char *xprt_fwd(const char (&str)[N]) { return str; }
+
+
 
 static inline
 const char *xprt_fwd(const Str &str)
 { return str.c_str(); }
 
+
+
 static inline
 const char *xprt_fwd(const Str_View &str)
 { return str.data(); }
+
+
 
 template <class T>
 static inline
@@ -111,6 +119,8 @@ auto xprintf_impl(std::FILE     *stream,
 {
   return std::fprintf(stream, fmt_and_args...);
 }
+
+
 
 template <typename ...Args>
 static inline
@@ -139,6 +149,8 @@ auto xprintf(const Args          &...args)
   return details::xprintf_impl(details::xprt_fwd(args)...);
 }
 
+
+
 template <typename ...Args>
 static inline
 void tracef(const Src_Location     &sl,
@@ -149,7 +161,10 @@ void tracef(const Src_Location     &sl,
   xprintf(stderr, "\n");
 }
 
+
+
 } // namespace Xi
+
 
 
 #endif // end of include guard: IFDEBUG_H_INCLUDED_FQK7BHGB

@@ -2,7 +2,6 @@
 #define BASE_H_INCLUDED_0VYM5UQO
 
 #include "stdincl.h"
-#include <glm/glm.hpp>
 
 namespace Xi {
 
@@ -18,9 +17,6 @@ using std::uint32_t;
 using std::uint64_t;
 
 using std::size_t;
-
-using float_t = float;
-using glm::vec2;
 
 template <typename T>
 using Opt = std::experimental::optional<T>;

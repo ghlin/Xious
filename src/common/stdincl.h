@@ -35,6 +35,7 @@
 
 
 // containers
+#include <array>
 #include <list>
 #include <vector>
 #include <deque>

@@ -23,8 +23,12 @@ struct Disable_Copy
   Disable_Copy() = default;
 };
 
+
+
 } // namespace cc
 } // namespace Xi
+
+
 
 #endif // end of include guard: COPYCTRL_H_INCLUDED_DHKQG5V8
 

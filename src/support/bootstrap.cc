@@ -25,6 +25,8 @@ void bootstrap_finalize()
   delete bootstrap_root();
 }
 
+
+
 } // namespace init
 } // namespace Xi
 

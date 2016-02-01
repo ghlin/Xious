@@ -3,18 +3,9 @@
 
 #include "config.h"
 #include "object.h"
-#include "pattern.h"
+#include "component.h"
 
 namespace Xi {
-
-class Entity : public Ref_Counted_Object
-{
-  Phy_Pattern *phy;
-  Dir_Pattern *dir;
-  Art_Pattern *art;
-  Evt_Pattern *evt;
-public:
-};
 
 } // namespace Xi
 
