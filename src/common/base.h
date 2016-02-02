@@ -371,7 +371,7 @@ public:
 
   inline void retract() { closure = [] { }; }
 
-  inline void reset()
+  inline void commit()
   {
     this->~RAII_Helper();
     new (this) RAII_Helper;
