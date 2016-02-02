@@ -2,100 +2,173 @@
 
 namespace Xi { namespace init {
 
-// {{{ make node
-Ptr<Init_Node> make_init_node_from_descstr(
-  const Str      &desc,
-  Init_Function   initializer,
-  Init_Function   finalizer)
+Task_Context::~Task_Context() { }
+
+struct Node;
+
+using Mod_List  = std::vector<Node *>;
+using Dep_List  = std::set<Str>;
+using Task_List = std::vector<Task>;
+
+enum Node_Status
 {
-  auto sep = ",;";
-  auto pos = desc.find_first_of(sep);
+  Waiting,
+  Initializing,
+  Finalizing,
+  Already_Initialized,
+  Already_Finalized
+};
 
-  if (pos == Str::npos)
-    return make_init_node(desc, { }, initializer, finalizer);
-
-  auto name     = desc.substr(0, pos);
-  auto dep_list = u_split(desc.substr(pos + 1), sep);
-
-  for (auto &dep : dep_list)
-    dep = u_trim(dep);
-
-  return make_init_node(name, { dep_list.cbegin(), dep_list.cend() }, initializer, finalizer);
-}
-
-// }}}
-
-
-// {{{ Init_Node
-Init_Node::Init_Node(const Str      &name,
-                     const Dep_List &deps)
-  : name(name)
-  , deps(deps)
-{ }
-
-
-
-Init_Node::~Init_Node()
-{ }
-
-
-
-Str Init_Node::dump() const
+struct Node
 {
-  return name + " : [" + u_join(deps, ", ") + "]";
-}
+  std::set<Ptr<Node>>       pool;
+  std::map<Str, Node *>     entries;
+  Node                     *root;
+  Node                     *parent;
+  unsigned                  depth;
+  Mod_List                  queue;
+  Mod_List                  pending;
 
-// }}}
+  Str                       name;
+  Dep_List                  deps;
+  Str                       path;
 
+  Ptr<Task_Context>         task_context;
 
-// {{{ Init_Group
+  Task_List                 pre_init,
+                            post_init,
+                            pre_fini,
+                            post_fini;
 
-class Init_Group::Init_Group_Impl
-{
-  using Pkg_List = std::vector<Init_Node *>;
+  Node_Status               node_status;
 
-public:
-  bool                             closed = false;
-  std::set<Str>                    got;
-  std::vector<Ptr<Init_Node>>      pool;
+  bool                      activated;
 
-  Pkg_List ordered;
-  Pkg_List pending;
-
-
-
-  Opt<size_t> prob_install_pos(Init_Node *node)
+  static Str pretty_path(const Node *node)
   {
-    auto ndeps = node->deps.size();
+    if (node->root == node)
+      return "<root>";
+
+    return pretty_path(node->parent) + "." + node->name;
+  }
+
+
+  Node(const Str &name, const Str_List &deps = { }, bool activated = false)
+    : root(this)
+    , parent(nullptr)
+    , depth(0)
+    , name(name)
+    , path(name)
+    , deps(deps.cbegin(), deps.cend())
+    , node_status(Waiting)
+    , activated(activated)
+  { }
+
+  inline Node *add_entry(Ptr<Node> &&entry)
+  {
+    auto *save = entry.get();
+
+    pool.insert(std::move(entry));
+    entries.emplace(save->name, save);
+
+    save->parent = this;
+    save->root   = root;
+    save->depth  = depth + 1;
+    save->path   = path + "." + save->name;
+
+    return save;
+  }
+
+  Node *prepare_path(const Str_List &path)
+  {
+    Node *iter = this;
+    for (auto &&entry : path)
+    {
+      if (!u_has(iter->entries, entry))
+        iter->add_entry(std::make_unique<Node>(entry));
+
+      iter = iter->entries.at(entry);
+    }
+
+    return iter;
+  }
+
+  inline Node *prepare_path(const Str &path)
+  {
+    return prepare_path(u_map(u_split(path, "."), u_trim));
+  }
+
+  void add_deep_dependence(const Node *dep)
+  {
+    Xi_runtime_check(root == dep->root);
+
+    Node *node = this;
+
+    while (node->depth > dep->depth)
+      node = node->parent;
+
+    while (dep->depth > node->depth)
+      dep = dep->parent;
+
+    while (node->parent != dep->parent)
+    {
+      node = node->parent;
+      dep  = dep->parent;
+    }
+
+    Xi_runtime_check(node->parent && dep->parent);
+
+    node->deps.insert(dep->name);
+  }
+
+
+  void add_dependence(const Str &depname)
+  {
+    if (depname.empty())
+      throw Init_Error("Invalid name");
+
+    if (depname[0] == '@')
+    {
+      auto dep = root->prepare_path(depname.substr(1));
+
+      add_deep_dependence(dep);
+    }
+    else
+    {
+      deps.insert(depname);
+    }
+  }
+
+  inline Opt<size_t> test_install(Node *entry)
+  {
+    auto ndeps = entry->deps.size();
 
     if (ndeps == 0)
       return { 0 };
 
-    for (size_t pos = 0; pos != ordered.size(); ++pos)
+    for (size_t pos = 0; pos != queue.size(); ++pos)
     {
-      if (u_has(node->deps, ordered.at(pos)->name) && --ndeps == 0)
+      auto that = queue.at(pos);
+
+      if (u_has(entry->deps, that->name) && that->activated && --ndeps == 0)
         return { pos + 1 };
     }
 
     return { };
   }
 
-
-
-  void do_install(Init_Node *node, size_t pos)
+  inline void install(Node *entry, size_t pos)
   {
-    ordered.insert(ordered.begin() + pos, node);
+    queue.insert(queue.begin() + pos, entry);
   }
 
-
-
-  void resolve_pending()
+  inline void resolve_pending()
   {
     for (auto iter = pending.begin(); iter != pending.end(); ++iter)
     {
-      if (auto pos = prob_install_pos(*iter))
+      if (auto pos = test_install(*iter))
       {
-        do_install(*iter, *pos);
+        install(*iter, *pos);
         pending.erase(iter);
 
         return resolve_pending();
@@ -103,134 +176,164 @@ public:
     }
   }
 
-
-
-  void resolve_one(Init_Node *node)
+  inline void resolve_one(Node *one)
   {
-    if (auto pos = prob_install_pos(node))
+    if (auto pos = test_install(one))
     {
-      do_install(node, *pos);
+      install(one, *pos);
       resolve_pending();
     }
     else
     {
-      pending.push_back(node);
+      pending.push_back(one);
     }
   }
 
-
-
-  void register_node(Ptr<Init_Node> &&node)
+  inline void resolve()
   {
-    if (closed)
-      throw Init_Already_Finished("register_node");
-
-    if (!got.insert(node->name).second)
-      throw Duplicated_Init_Node(node->name);
-
-    pool.emplace_back(std::move(node));
+    for (auto &entry : pool)
+      resolve_one(entry.get());
   }
 
-
-
-  void initialize()
+  void initialize(Handle *handle)
   {
-    if (closed)
-      throw Init_Already_Finished("initialize");
+    if (node_status != Waiting)
+      throw Init_Error("Initialize state mismatch.");
 
-    closed = true;
+    node_status = Initializing;
+    auto _ = u_defer_with (this)
+    {
+      node_status = Already_Initialized;
+    };
 
-    for (auto &&node : pool)
-      resolve_one(node.get());
+    resolve();
 
     if (!pending.empty())
-      throw Dependences_Unsatisfied(pending);
+    {
+      auto unresolved = u_join(pending, "\n", [] (Node *node)
+                              {
+                                return node->path + " requires [" + u_join(node->deps, ", ") + "]";
+                              });
 
-    for (auto *node : ordered)
-      node->initialize();
+      auto msg = "Unresolved deps of " + path + " :\n" + unresolved;
+
+      Xi_log(msg);
+      Xi_log("pending : %zu", pending.size());
+
+      throw Init_Error(std::move(msg));
+    }
+
+    for (auto &&init : pre_init)
+      init(handle, path, name, task_context.get());
+
+    for (auto *entry : queue)
+      entry->initialize(handle);
+
+    for (auto &&init : post_init)
+      init(handle, path, name, task_context.get());
   }
 
-
-
-  void finalize()
+  void finalize(Handle *handle)
   {
-    if (!closed)
-      throw Init_Error("`finalize' called before `initialize'.");
+    if (node_status != Already_Initialized)
+      throw Init_Error("Finalize state mismatch.");
 
-    for (auto node = ordered.rbegin(); node != ordered.rend(); ++node)
-      (*node)->finalize();
+    node_status = Finalizing;
+    auto _ = u_defer_with (this)
+    {
+      node_status = Already_Finalized;
+    };
+
+    for (auto &&fini : pre_fini)
+      fini(handle, path, name, task_context.get());
+
+    for (auto pent = queue.rbegin(); pent != queue.rend(); ++pent)
+      (*pent)->finalize(handle);
+
+    for (auto &&fini : post_fini)
+      fini(handle, path, name, task_context.get());
   }
 };
 
+class Handle::Handle_Impl
+{
+public:
+  Ptr<Node> root = std::make_unique<Node>("<root>");
+};
 
-
-Init_Group::Init_Group(const Str &name, const Dep_List &deps)
-  : Init_Node(name, deps)
-  , pimpl(new Init_Group::Init_Group_Impl)
+Handle::Handle() : pimpl(new Handle::Handle_Impl)
 { }
 
+Handle::~Handle() { }
 
-
-Init_Group::~Init_Group()
-{ }
-
-
-
-Str Init_Group::dump() const
+Handle *Handle::register_module(const Str &path,
+                                const Str_List &deps)
 {
-  return Init_Node::dump() + " \n"
-    + u_join(pimpl->ordered, "\n", [](auto *node) { return "  " + node->dump(); });
-}
+  auto *node = pimpl->root->prepare_path(path);
+  node->activated = true;
 
-
-
-Init_Group *Init_Group::register_node(Ptr<Init_Node> &&node)
-{
-  pimpl->register_node(std::move(node));
+  for (auto &&dep : deps)
+    node->add_dependence(dep);
 
   return this;
 }
 
-
-
-void Init_Group::initialize()
+Handle *Handle::add_dependences(const Str &path,
+                                const Str_List &deps)
 {
-  pimpl->initialize();
+  return register_module(path, deps);
 }
 
-
-
-void Init_Group::finalize()
+Handle *Handle::append_task(const Str &path,
+                            const Str &type,
+                            Task       task)
 {
-  pimpl->finalize();
+  auto node = pimpl->root->prepare_path(path);
+  node->activated = true;;
+
+  if (type == "preinit")
+    node->pre_init.push_back(task);
+  else if (type == "postinit")
+    node->post_init.push_back(task);
+  else if (type == "prefini")
+    node->pre_fini.push_back(task);
+  else if (type == "postfini")
+    node->pre_fini.push_back(task);
+  else
+    throw Init_Error("append_task - Unknown type : " + type);
+
+  return this;
 }
 
-// }}}
+Handle *Handle::set_task_context(const Str          &path,
+                                 Ptr<Task_Context> &&tc)
+{
+  auto node = pimpl->root->prepare_path(path);
+  node->activated = true;
 
+  node->task_context = std::move(tc);
 
-// {{{ Exceptions
+  return this;
+}
 
-Init_Already_Finished::Init_Already_Finished(const Str &operation)
-  : Init_Error("Init already finished when calling `" + operation + "'")
-{ }
+Task_Context *Handle::get_task_context(const Str &path)
+{
+  auto node = pimpl->root->prepare_path(path);
 
+  return node->task_context.get();
+}
 
+void Handle::initialize()
+{
+  pimpl->root->initialize(this);
+}
 
-Dependences_Unsatisfied::Dependences_Unsatisfied(
-  const std::vector<Init_Node *> &deps)
-  : Init_Error("Unsatisfied dependences found.")
-  , dependences(u_map(deps, [] (auto x) { return x->get_name(); }))
-{ }
-
-
-Duplicated_Init_Node::Duplicated_Init_Node(const Str &name)
-  : Init_Error("Duplicated init node found: " + name)
-  , duplicated_node(name)
-{ }
-
-// }}}
-
+void Handle::finalize()
+{
+  pimpl->root->finalize(this);
+}
 
 } // namespace init
 } // namespace Xi
+
 
