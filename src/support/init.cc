@@ -44,15 +44,6 @@ struct Node
 
   bool                      activated;
 
-  static Str pretty_path(const Node *node)
-  {
-    if (node->root == node)
-      return "<root>";
-
-    return pretty_path(node->parent) + "." + node->name;
-  }
-
-
   Node(const Str &name, const Str_List &deps = { }, bool activated = false)
     : root(this)
     , parent(nullptr)
@@ -74,28 +65,34 @@ struct Node
     save->parent = this;
     save->root   = root;
     save->depth  = depth + 1;
-    save->path   = path + "." + save->name;
+
+    if (path.empty()) // root -> entry
+      save->path   = save->name;
+    else
+      save->path   = path + "." + save->name;
 
     return save;
   }
 
-  Node *prepare_path(const Str_List &path)
+  Node *prepare_path(const Str_List &path, bool active = false)
   {
     Node *iter = this;
+
     for (auto &&entry : path)
     {
       if (!u_has(iter->entries, entry))
         iter->add_entry(std::make_unique<Node>(entry));
 
+      iter->activated = active;
       iter = iter->entries.at(entry);
     }
 
     return iter;
   }
 
-  inline Node *prepare_path(const Str &path)
+  inline Node *prepare_path(const Str &path, bool active = false)
   {
-    return prepare_path(u_map(u_split(path, "."), u_trim));
+    return prepare_path(u_map(u_split(path, "."), u_trim), active);
   }
 
   void add_deep_dependence(const Node *dep)
@@ -110,17 +107,15 @@ struct Node
     while (dep->depth > node->depth)
       dep = dep->parent;
 
+    // until they have the same parent.
     while (node->parent != dep->parent)
     {
       node = node->parent;
       dep  = dep->parent;
     }
 
-    Xi_runtime_check(node->parent && dep->parent);
-
     node->deps.insert(dep->name);
   }
-
 
   void add_dependence(const Str &depname)
   {
@@ -223,6 +218,12 @@ struct Node
       throw Init_Error(std::move(msg));
     }
 
+    Xi_debug_log(" %s :: %s (needs %zu:%s)",
+                 path,
+                 name,
+                 deps.size(),
+                 u_join(deps, ", "));
+
     for (auto &&init : pre_init)
       init(handle, path, name, task_context.get());
 
@@ -258,7 +259,7 @@ struct Node
 class Handle::Handle_Impl
 {
 public:
-  Ptr<Node> root = std::make_unique<Node>("<root>");
+  Ptr<Node> root = std::make_unique<Node>(""); /* root */
 };
 
 Handle::Handle() : pimpl(new Handle::Handle_Impl)
@@ -266,14 +267,20 @@ Handle::Handle() : pimpl(new Handle::Handle_Impl)
 
 Handle::~Handle() { }
 
-Handle *Handle::register_module(const Str &path,
-                                const Str_List &deps)
+Handle *Handle::active(const Str &path)
 {
-  auto *node = pimpl->root->prepare_path(path);
+  auto *node = pimpl->root->prepare_path(path, false);
+
   node->activated = true;
 
-  for (auto &&dep : deps)
-    node->add_dependence(dep);
+  return this;
+}
+
+Handle *Handle::active_all(const Str &path)
+{
+  auto *node = pimpl->root->prepare_path(path, true);
+
+  node->activated = true;
 
   return this;
 }
@@ -281,7 +288,14 @@ Handle *Handle::register_module(const Str &path,
 Handle *Handle::add_dependences(const Str &path,
                                 const Str_List &deps)
 {
-  return register_module(path, deps);
+  auto *node = pimpl->root->prepare_path(path, false);
+
+  node->activated = true;
+
+  for (auto &&dep : deps)
+    node->add_dependence(dep);
+
+  return this;
 }
 
 Handle *Handle::append_task(const Str &path,

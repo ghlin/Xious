@@ -25,8 +25,7 @@ public:
   Handle();
   ~Handle();
 
-  Handle *register_module(const Str &path,
-                          const Str_List &deps = { });
+  Handle *active(const Str &path);
 
   Handle *active_all(const Str &path);
 

@@ -6,16 +6,38 @@
 
 namespace Xi { namespace init {
 
-attr_export Handle *bootstrap_root();
-attr_export void    bootstrap_initialize();
-attr_export void    bootstrap_finalize();
+using Bootstrap_Task = std::function<void ( int             /* argc */
+                                          , const char **   /* argv */
+                                          , const Str &     /* path */
+                                          )>;
+
+attr_export void    bootstrap_add_task(const Str      &path,
+                                       const Str_List &deps,
+                                       Bootstrap_Task  task);
+
+attr_export void    bootstrap_add_post_task(const Str      &path,
+                                            const Str_List &deps,
+                                            Bootstrap_Task  task);
+
+attr_export void    bootstrap_add_cleanup(const Str          &path,
+                                          const Str_List     &deps,
+                                          Bootstrap_Task      task);
+
+attr_export void    bootstrap_initialize(int argc, const char **argv);
+
+attr_export void    bootstrap_finalize(int argc, const char **argv);
 
 } // namespace init
 } // namespace Xi
 
-#define attr_bootstrap attr_init(XI_INIT_PRIO_INTERNAL + 1000)
+#define XI_INIT_PRIO_BOOTSTRAP (XI_INIT_PRIO_INTERNAL + 100)
 
-// TODO(ghlin) : complete 2016-02-02 20:36:34
+#define XI_BOOTSTRAP_SCOPE() \
+  namespace { namespace bootstrap_scope { \
+  static attr_ctrl(spec_visisbility_hidden, \
+                   constructor(XI_INIT_PRIO_BOOTSTRAP)) \
+  void entry(); } } \
+  void bootstrap_scope::entry()
 
 #endif // end of include guard: BOOTSTRAP_H_INCLUDED_79FKHBZU
 
