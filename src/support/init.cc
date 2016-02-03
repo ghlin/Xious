@@ -219,8 +219,8 @@ struct Node
     }
 
     Xi_debug_log(" %s :: %s (needs %zu:%s)",
-                 path,
-                 name,
+                 path.empty() ? "<root>" : path,
+                 name.empty() ? "<root>" : name,
                  deps.size(),
                  u_join(deps, ", "));
 

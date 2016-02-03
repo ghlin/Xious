@@ -5,20 +5,37 @@
 
 namespace Xi {
 
-template <template <class ...> class Container>
-class Phy_Composer : public Container<Phy_Status>
+template < class X
+         , template <class ...> class Container>
+class Composed_Component : public Container<X>
 {
-  using Base = Container<Phy_Status>;
+  using Base = Container<X>;
 public:
   using Base::Base;
 
-private:
-  virtual Phy_Status do_update(const Update_Details &ud)
+  virtual bool finished() const
   {
-    Phy_Status accu = { };
+    for (auto &&component : *this)
+    {
+      if (!component->finished())
+        return false;
+    }
+
+    return true;
+  }
+
+private:
+  virtual X do_update(const Update_Details &ud) override
+  {
+    X composed_status = { };
 
     for (auto &&component : *this)
-      accu += component->update(ud);
+    {
+      if (!component->finished())
+        composed_status += component->update(ud);
+    }
+
+    return composed_status;
   }
 };
 

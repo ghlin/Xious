@@ -60,6 +60,10 @@ public:
 
 
 
+// TODO(ghlin) :
+// 提供删除操作
+//
+// 2016-02-03 19:04:30
 template < class  Component_Type
          , size_t Capacity = 0
          >
@@ -84,6 +88,8 @@ public:
       return false;
 
     this->composed[last_pos++] = p;
+    p->retain();
+
     return true;
   }
 };
@@ -98,6 +104,7 @@ public:
   inline bool push_back(Component_Type *p)
   {
     this->composed.push_back(p);
+    p->retain();
 
     return true;
   }
