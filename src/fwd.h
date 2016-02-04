@@ -8,6 +8,7 @@ class Entity;
 class Renderer;
 class Component;
 
+class Instance;
 class Instance_Init_Ctrl;
 
 } // namespace Xi
