@@ -5,6 +5,12 @@
 #include "object.h"
 #include "updatedetails.h"
 
+#include "phystatus.h"
+#include "collistatus.h"
+#include "dirstatus.h"
+#include "renderstatus.h"
+#include "eventstatus.h"
+
 namespace Xi {
 
 class Component_Update_Ctrl;
@@ -81,10 +87,12 @@ private:
   virtual X do_update(const Update_Details &ud) = 0;
 };
 
-using Phy_Component = X_Component<Phy_Status>;
-using Dir_Component = X_Component<Dir_Status>;
-using Art_Component = X_Component<Art_Status>;
-using Evt_Component = X_Component<Evt_Status>;
+
+using Phy_Component    = X_Component<Phy_Status>;
+using Colli_Component  = X_Component<Colli_Status>;
+using Dir_Component    = X_Component<Dir_Status>;
+using Render_Component = X_Component<Render_Staus>;
+using Event_Component  = X_Component<Event_Status>;
 
 } // namespace Xi
 

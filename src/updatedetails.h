@@ -2,10 +2,6 @@
 #define UPDATEDETAILS_H_INCLUDED_E2VYDSLF
 
 #include "config.h"
-#include "phystatus.h"
-#include "artstatus.h"
-#include "evtstatus.h"
-#include "dirstatus.h"
 
 namespace Xi {
 

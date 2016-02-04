@@ -43,7 +43,7 @@ public:
   inline
   const Phy_Component *phy_component() const
   {
-    return static_cast<Phy_Component *>(query_component(CID_Phy_Update));
+    return static_cast<const Phy_Component *>(query_component(CID_Phy_Update));
   }
 };
 

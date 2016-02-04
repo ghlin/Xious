@@ -4,15 +4,18 @@
 #include "config.h"
 #include "object.h"
 #include "objgroup.h"
-#include "collision.h"
 
 
 namespace Xi {
 
 class Update_Group : Obj_Group
 {
+  Object *global_update;
+  void update_phy(Instance *instance, float_t dt);
+  void update_event(Instance *instance, float_t dt);
 public:
-  // phy_update /
+
+  void update(Instance *instance, float_t dt);
 };
 
 } // namespace Xi
