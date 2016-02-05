@@ -16,7 +16,7 @@ constexpr object_id_t CID_Configs       = 0,
                       CID_State_Evt     = 4,
                       CID_Render        = 5;
 
-class Entity : public Ref_Counted_Object
+class Entity : public Pooled_Object
 {
   friend class Entity_Ctrl;
 

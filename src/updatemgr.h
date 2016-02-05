@@ -11,6 +11,7 @@ namespace Xi {
 class Update_Group : Obj_Group
 {
   Object *global_update;
+
   void update_phy(Instance *instance, float_t dt);
   void update_event(Instance *instance, float_t dt);
 public:

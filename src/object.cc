@@ -20,14 +20,14 @@ Object *Cloneable_Object::clone() const
 // }}}
 
 
-// {{{ Ref_Counted_Object
+// {{{ Pooled_Object
 
-void Ref_Counted_Object::finalize()
+void Pooled_Object::finalize()
 {
   delete this;
 }
 
-Ref_Counted_Object::~Ref_Counted_Object()
+Pooled_Object::~Pooled_Object()
 {
   Xi_debug_check(ref_count == 0);
 }

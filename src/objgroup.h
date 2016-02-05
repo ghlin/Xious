@@ -6,7 +6,7 @@
 
 namespace Xi {
 
-using Obj_List = std::vector<Ref_Counted_Object *>;
+using Obj_List = std::vector<Pooled_Object *>;
 
 class Obj_Group : public Object
 {
@@ -44,8 +44,9 @@ protected:
   }
 
   virtual bool is_qualified(Object *) const;
+
 public:
-  inline bool add(Ref_Counted_Object *obj)
+  inline bool add(Pooled_Object *obj)
   {
     if (!is_qualified(obj))
     {
@@ -59,7 +60,7 @@ public:
     return true;
   }
 
-  inline void unchecked_add(Ref_Counted_Object *obj)
+  inline void unchecked_add(Pooled_Object *obj)
   {
     obj->retain();
 

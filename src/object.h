@@ -18,46 +18,36 @@ public:
 };
 
 /**
- * 可复制对象.
+ * 池化对象.
  */
-class Cloneable_Object
-  : public Object
-{
-public:
-  virtual Object *clone() const;
-};
-
-/**
- * 引用计数的对象.
- */
-class Ref_Counted_Object
+class Pooled_Object
   : public Object
 {
   ref_count_t ref_count;
 public:
-  Ref_Counted_Object(const Ref_Counted_Object &) :
+  Pooled_Object(const Pooled_Object &) :
     ref_count(0) { }
 
-  Ref_Counted_Object(Ref_Counted_Object &&) :
+  Pooled_Object(Pooled_Object &&) :
     ref_count(0) { }
 
-  Ref_Counted_Object() : ref_count(0) { }
+  Pooled_Object() : ref_count(0) { }
 
   inline
-  Ref_Counted_Object &operator =(const Ref_Counted_Object &)
+  Pooled_Object &operator =(const Pooled_Object &)
   {
     return *this;
   }
 
   inline
-  Ref_Counted_Object &operator =(Ref_Counted_Object &&other)
+  Pooled_Object &operator =(Pooled_Object &&other)
   {
     Xi_debug_check(other.get_ref_count() == 1);
 
     return *this;
   }
 
-  ~Ref_Counted_Object();
+  ~Pooled_Object();
 
   inline ref_count_t retain()
   {
@@ -91,11 +81,6 @@ class Object_Pool : public Object
 public:
   virtual Object *acquire()         = 0;
   virtual void    release(Object *) = 0;
-
-  /**
-   * 独占控制权.
-   */
-  virtual void    manage(Object *)  = 0;
 };
 
 /**
