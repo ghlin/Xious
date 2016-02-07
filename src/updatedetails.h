@@ -35,6 +35,8 @@ struct Update_Details
   frame_t       delta_frame; ///< 应当为1.
   frame_t       total_frame; ///< 总共更新了的帧数.
 
+  uint32_t      tick_id;
+
   Renderer     *renderer;    ///< 渲染器.
 };
 

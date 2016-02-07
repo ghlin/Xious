@@ -65,9 +65,10 @@ template <class X>
 class X_Component : public Component
 {
   X            last_status = { };
+
   float_t      time_elpased;
-  uint32_t     this_frame;
-  uint32_t     last_frame;
+  uint32_t     this_frame = 0;
+  uint32_t     tick_id    = UINT32_MAX;
 
 public:
   inline uint32_t get_frame() const
@@ -89,31 +90,17 @@ public:
   inline
   X update(const Update_Details &ud)
   {
-    if (last_frame != this_frame)
-    {
-      time_elpased += ud.delta_time_elpased;
-      this_frame   += ud.delta_frame;
+    if (ud.tick_id == tick_id)
+      return get_last_status();
 
-      last_status   = do_update(ud);
+    this_frame   += ud.delta_frame;
+    time_elpased += ud.delta_time_elpased;
 
-      last_frame    = this_frame;
-
-      return last_status;
-    }
-
-    return do_update(ud);
-  }
-
-  inline
-  bool already_updated_this_frame() const
-  {
-    return last_frame == this_frame;
+    return last_status   = do_update(ud);
   }
 
   virtual bool  finished() const = 0;
 private:
-  // if (already_updated_this_frame()) return last_status;
-  // else xxx;
   virtual X do_update(const Update_Details &ud) = 0;
 };
 
