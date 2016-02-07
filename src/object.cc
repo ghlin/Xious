@@ -12,14 +12,6 @@ void Object::finalize() { }
 // }}}
 
 
-// {{{ Cloneable_Object
-Object *Cloneable_Object::clone() const
-{
-  return nullptr;
-}
-// }}}
-
-
 // {{{ Pooled_Object
 
 void Pooled_Object::finalize()

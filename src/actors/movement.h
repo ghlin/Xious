@@ -13,7 +13,7 @@ class Movement : public Actor
   XIC_EXPORT(u, curve_type, finish_policy)
 
 private:
-  virtual Phy_Status do_update(const Update_Details &ud) override
+  virtual Phy_Status do_update(const Update_Details &ud) override;
 };
 
 } // namespace Xi

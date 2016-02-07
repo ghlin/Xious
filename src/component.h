@@ -17,17 +17,21 @@ class Component_Update_Ctrl;
 class Component_Param_Ctrl;
 
 namespace details {
+template <class V>
 struct key_dummy_s { };
 } // namespace details
 
-using param_key_t = const details::key_dummy_s *;
+using param_v_value_t = vec2;
+using param_f_value_t = float_t;
+using param_i_value_t = int32_t;
+using param_u_value_t = uint32_t;
+using param_x_value_t = Pooled_Object *;
 
-using param_type_v_t = vec2;
-using param_type_x_t = Pooled_Object *;
-using param_type_i_t = int32_t;
-using param_type_u_t = uint32_t;
-using param_type_f_t = float_t;
-
+using param_v_key_t   = const details::key_dummy_s<param_v_value_t> *;
+using param_f_key_t   = const details::key_dummy_s<param_f_value_t> *;
+using param_i_key_t   = const details::key_dummy_s<param_i_value_t> *;
+using param_u_key_t   = const details::key_dummy_s<param_u_value_t> *;
+using param_x_key_t   = const details::key_dummy_s<param_x_value_t> *;
 
 /**
  * 组件的基类. 绑定到实体上, 为实体提供状态信息.
@@ -39,19 +43,18 @@ class Component : public Pooled_Object
    */
   friend class Component_Update_Ctrl;
   friend class Component_Param_Ctrl;
-
 protected:
-  virtual param_type_f_t   query_f(param_key_t key) const;
-  virtual param_type_v_t   query_v(param_key_t key) const;
-  virtual param_type_i_t   query_i(param_key_t key) const;
-  virtual param_type_u_t   query_u(param_key_t key) const;
-  virtual param_type_x_t  *query_x(param_key_t key) const;
+  virtual param_v_value_t   get(param_v_key_t key) const;
+  virtual param_f_value_t   get(param_f_key_t key) const;
+  virtual param_i_value_t   get(param_i_key_t key) const;
+  virtual param_u_value_t   get(param_u_key_t key) const;
+  virtual param_x_value_t   get(param_x_key_t key) const;
 
-  virtual void set_f(param_key_t key, param_type_f_t);
-  virtual void set_v(param_key_t key, param_type_v_t);
-  virtual void set_i(param_key_t key, param_type_i_t);
-  virtual void set_u(param_key_t key, param_type_u_t);
-  virtual void set_x(param_key_t key, param_type_x_t);
+  virtual void set(param_v_key_t key, param_v_value_t param);
+  virtual void set(param_f_key_t key, param_f_value_t param);
+  virtual void set(param_i_key_t key, param_i_value_t param);
+  virtual void set(param_u_key_t key, param_u_value_t param);
+  virtual void set(param_x_key_t key, param_x_value_t param);
 };
 
 
@@ -123,23 +126,26 @@ using Commander = X_Component<Event_Status>;
 } // namespace Xi
 
 #define _XIC_TOUPPER(x) XI_JOIN(_XIC_UPPER_, x)
+
 #define _XIC_UPPER_v V
 #define _XIC_UPPER_x X
 #define _XIC_UPPER_i I
 #define _XIC_UPPER_u U
 #define _XIC_UPPER_f F
-#define _XIC_TYPE(suffix) XI_JOIN(param_type_, suffix, _t)
+
+#define _XIC_VALUE_TYPE(suffix) XI_JOIN(param_, suffix, _value_t)
+#define _XIC_KEY_TYPE(suffix)   XI_JOIN(param_, suffix, _key_t)
 
 #define _XIC_PARAM(suffix, name) \
 private: \
-  _XIC_TYPE(suffix) name; \
-  const static details::key_dummy_s XI_JOIN(suffix, _key_, name); \
+  _XIC_VALUE_TYPE(suffix) name; \
+  const static details::key_dummy_s<_XIC_VALUE_TYPE(suffix)> XI_JOIN(suffix, _key_, name); \
 public: \
-  inline _XIC_TYPE(suffix) XI_JOIN(get_, name)() const \
+  inline _XIC_VALUE_TYPE(suffix) XI_JOIN(get_, name)() const \
   { return name; } \
-  inline void XI_JOIN(set_, name)(_XIC_TYPE(suffix) param) \
+  inline void XI_JOIN(set_, name)(_XIC_VALUE_TYPE(suffix) param) \
   { name = param; } \
-  inline param_key_t XI_JOIN(get_, suffix, _key_, name)() const \
+  inline _XIC_KEY_TYPE(suffix) XI_JOIN(get_, suffix, _key_, name)() const \
   { return &XI_JOIN(suffix, _key_, name); } \
 
 #define _XIC_PARAM_v(name) _XIC_PARAM(v, name)
@@ -150,11 +156,11 @@ public: \
 
 #define _XIC_DECLARE_INTERFACE(suffix) \
 protected: \
-  virtual void XI_JOIN(set_, suffix)(param_key_t, _XIC_TYPE(suffix)) override; \
-  virtual _XIC_TYPE(suffix) XI_JOIN(query_, suffix)(param_key_t) const override;
+  virtual void set(_XIC_KEY_TYPE(suffix), _XIC_VALUE_TYPE(suffix)) override; \
+  virtual _XIC_VALUE_TYPE(suffix) get(_XIC_KEY_TYPE(suffix)) const override;
 
 #define _XIC_SETTER_BEGIN(Klass, suffix) \
-  void Klass::XI_JOIN(set_, suffix)(param_key_t key, _XIC_TYPE(suffix) param) \
+  void Klass::set(_XIC_KEY_TYPE(suffix) key, _XIC_VALUE_TYPE(suffix) param) \
   {
 #define _XIC_SETTER(suffix, name) \
     if (key == &XI_JOIN(suffix, _key_, name)) \
@@ -167,10 +173,10 @@ protected: \
 #define _XIC_SETTER_x(name) _XIC_SETTER(x, name)
 
 #define _XIC_SETTER_END(suffix) \
-  return Super::XI_JOIN(set_, suffix)(key, param); }
+  return Super::set(key, param); }
 
 #define _XIC_GETTER_BEGIN(Klass, suffix) \
-  _XIC_TYPE(suffix) Klass::XI_JOIN(query_, suffix)(param_key_t key) const \
+  _XIC_VALUE_TYPE(suffix) Klass::get(_XIC_KEY_TYPE(suffix) key) const \
   {
 #define _XIC_GETTER(suffix, name) \
     if (key == &XI_JOIN(suffix, _key_, name)) \
@@ -183,10 +189,10 @@ protected: \
 #define _XIC_GETTER_x(name) _XIC_GETTER(x, name)
 
 #define _XIC_GETTER_END(suffix) \
-    return Super::XI_JOIN(query_, suffix)(key); }
+    return Super::get(key); }
 
 #define _XIC_COMPLETE_KEY(Klass, suffix, name) \
-  const details::key_dummy_s Klass::XI_JOIN(suffix, _key_, name) = {};
+  const details::key_dummy_s<_XIC_VALUE_TYPE(suffix)> Klass::XI_JOIN(suffix, _key_, name) = { };
 
 #define _XIC_COMPLETE_KEY_v(name) _XIC_COMPLETE_KEY(_Klass, v, name)
 #define _XIC_COMPLETE_KEY_f(name) _XIC_COMPLETE_KEY(_Klass, f, name)

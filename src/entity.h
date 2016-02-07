@@ -16,11 +16,15 @@ constexpr object_id_t CID_Configs       = 0,
                       CID_State_Evt     = 4,
                       CID_Render        = 5;
 
-class Entity : public Pooled_Object
+class Entity : public Component
 {
+  using Super = Component;
+
   friend class Entity_Ctrl;
 
   Component *components[kComponents];
+
+  XIC_EXPORT(u, collision_group, update_group, entity_tag)
 public:
   inline
   Component *query_component(object_id_t cid)
@@ -35,15 +39,15 @@ public:
   }
 
   inline
-  Phy_Component *phy_component()
+  Actor *get_actor()
   {
-    return static_cast<Phy_Component *>(query_component(CID_Phy_Update));
+    return static_cast<Actor *>(query_component(CID_Phy_Update));
   }
 
   inline
-  const Phy_Component *phy_component() const
+  const Actor *get_actor() const
   {
-    return static_cast<const Phy_Component *>(query_component(CID_Phy_Update));
+    return static_cast<const Actor *>(query_component(CID_Phy_Update));
   }
 };
 
