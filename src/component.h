@@ -5,12 +5,6 @@
 #include "object.h"
 #include "updatedetails.h"
 
-#include "phystatus.h"
-#include "collistatus.h"
-#include "dirstatus.h"
-#include "renderstatus.h"
-#include "eventstatus.h"
-
 namespace Xi {
 
 class Component_Update_Ctrl;
@@ -59,7 +53,7 @@ protected:
 
 
 /**
- * 具体组件的基类
+ * 具体组件的基类.
  */
 template <class X>
 class X_Component : public Component
@@ -103,12 +97,6 @@ public:
 private:
   virtual X do_update(const Update_Details &ud) = 0;
 };
-
-using Actor     = X_Component<Phy_Status>;
-using Collider  = X_Component<Colli_Status>;
-using Vector    = X_Component<Dir_Status>;
-using Render    = X_Component<Render_Staus>;
-using Commander = X_Component<Event_Status>;
 
 } // namespace Xi
 

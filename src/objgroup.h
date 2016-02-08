@@ -10,7 +10,7 @@ using Obj_List = std::vector<Pooled_Object *>;
 
 class Obj_Group : public Object
 {
-protected:
+public:
   Obj_List members;
 
   inline auto erase(Obj_List::iterator bye)

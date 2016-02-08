@@ -1,7 +1,7 @@
 #ifndef STEADY_H_INCLUDED_QGY5UKJH
 #define STEADY_H_INCLUDED_QGY5UKJH
 
-#include "common.h"
+#include "../actor.h"
 
 namespace Xi {
 

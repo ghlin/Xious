@@ -29,6 +29,9 @@ public:
    * \note 不采用引用计数方式管理.
    */
   object_id_t register_object(const Str &id, Ptr<Object> &&obj);
+
+
+  void update(float_t dt);
 };
 
 } // namespace Xi

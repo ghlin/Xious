@@ -1,7 +1,7 @@
 #ifndef MOVEMENT_H_INCLUDED_TNLMQZKI
 #define MOVEMENT_H_INCLUDED_TNLMQZKI
 
-#include "common.h"
+#include "../actor.h"
 
 namespace Xi {
 

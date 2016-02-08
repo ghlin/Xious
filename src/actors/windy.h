@@ -1,7 +1,7 @@
 #ifndef WINDY_H_INCLUDED_TPLE7IVU
 #define WINDY_H_INCLUDED_TPLE7IVU
 
-#include "common.h"
+#include "../actor.h"
 
 namespace Xi {
 

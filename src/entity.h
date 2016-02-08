@@ -7,48 +7,35 @@
 
 namespace Xi {
 
-constexpr size_t kComponents = 16;
-
-constexpr object_id_t CID_Configs       = 0,
-                      CID_Phy_Update    = 1,
-                      CID_Dir_update    = 2,
-                      CID_Collision_Evt = 3,
-                      CID_State_Evt     = 4,
-                      CID_Render        = 5;
-
-class Entity : public Component
+class Entity : public X_Component<bool>
 {
-  using Super = Component;
+  using Super = X_Component<bool>;
 
   friend class Entity_Ctrl;
 
-  Component *components[kComponents];
+  XIC_EXPORT(v,
+             init_postion,
+             colli_centre,
+             cm_bouding_box)
 
-  XIC_EXPORT(u, collision_group, update_group, entity_tag)
+  XIC_EXPORT(u,
+             life_ctrl_flags,
+             collision_model,
+             collision_group,
+             entity_tag,
+             update_group)
+
+  XIC_EXPORT(f,
+             cm_radius)
+
+  XIC_EXPORT(x,
+             actor,
+             dir,
+             render)
 public:
-  inline
-  Component *query_component(object_id_t cid)
-  {
-    return components[cid];
-  }
 
-  inline
-  const Component *query_component(object_id_t cid) const
-  {
-    return components[cid];
-  }
-
-  inline
-  Actor *get_actor()
-  {
-    return static_cast<Actor *>(query_component(CID_Phy_Update));
-  }
-
-  inline
-  const Actor *get_actor() const
-  {
-    return static_cast<const Actor *>(query_component(CID_Phy_Update));
-  }
+private:
+  bool do_update(const Update_Details &ud) override;
 };
 
 } // namespace Xi
