@@ -1,6 +1,6 @@
 *.o
+*.out
 test/
-build/
 *.swp
 *.swo
 *.i
