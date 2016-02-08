@@ -1,7 +1,6 @@
 *.o
-build/
-test/*
 test/
+build/
 *.swp
 *.swo
 *.i
