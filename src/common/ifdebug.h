@@ -94,17 +94,6 @@ const char *xprt_fwd(const Str_View &str)
 { return str.data(); }
 
 
-
-template <class T>
-static inline
-std::enable_if_t<  std::is_class<std::decay_t<T>>::value
-               && !std::is_same<std::decay_t<T>, Str>::value
-               && !std::is_same<std::decay_t<T>, Str_View>::value
-                , const char *>
-xprt_fwd(const T &t)
-{ return xprt_fwd(t.dump()); }
-
-
 } // namespace details
 
 #pragma GCC diagnostic push
@@ -156,7 +145,7 @@ static inline
 void tracef(const Src_Location     &sl,
             const Args          &...fmt_and_args)
 {
-  xprintf(stderr, "%s - ", sl);
+  xprintf(stderr, "[ %s, %s, %u ] - ", sl.file, sl.func, sl.line);
   xprintf(stderr, fmt_and_args...);
   xprintf(stderr, "\n");
 }

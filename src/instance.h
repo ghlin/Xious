@@ -6,11 +6,23 @@
 
 namespace Xi {
 
+struct Static_Config
+{
+  uint32_t       scene_width,
+                 scene_height;
+
+  float_t        scale;
+  float_t        delta_time_elpased;
+};
+
 class Instance : cc::Disable_Copy
 {
   XI_PIMPL(Instance);
 
+  Static_Config static_config;
 public:
+  Instance(Static_Config static_config);
+
   /**
    * 取得id所对应的对象.
    * \note 不存在该对象返回nullptr.
@@ -32,6 +44,12 @@ public:
 
 
   void update(float_t dt);
+
+  inline
+  const Static_Config &get_static_config() const
+  {
+    return static_config;
+  }
 };
 
 } // namespace Xi

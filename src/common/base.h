@@ -280,7 +280,6 @@ Container<Str> u_split(const Str &input, const Str &sep)
 {
   Container<Str> output;
 
-
   Str::size_type npos = Str::npos, f = 0, s = 0;
   auto           iter = std::back_inserter(output);
 
