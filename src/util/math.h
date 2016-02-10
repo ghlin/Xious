@@ -57,10 +57,10 @@ bool is_inside(const vec_t &point,
                const vec_t &centre,
                const vec_t &border)
 {
-  if ( point.x > centre.x - border.x
-    || point.x < centre.x + border.x
-    || point.y > centre.y - border.y
-    || point.y < centre.y + border.y)
+  if ( point.x > centre.x + border.x
+    || point.x < centre.x - border.x
+    || point.y > centre.y + border.y
+    || point.y < centre.y - border.y)
   {
     return false;
   }
