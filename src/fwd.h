@@ -5,10 +5,11 @@ namespace Xi {
 
 class Object;
 class Entity;
-class Renderer;
-class Component;
+class Actor;
+class Chapter;
 class Instance;
-class Instance_Init_Ctrl;
+
+struct Update_Details;
 
 } // namespace Xi
 

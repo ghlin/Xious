@@ -8,10 +8,11 @@ namespace Xi {
 
 enum Collision_Model_Type
 {
+  CM_Special,
+  CM_Line,
+  CM_Segment,
   CM_Box,
   CM_Round,
-  CM_Segment,
-  CM_Line,
 };
 
 struct Box_Model
@@ -34,6 +35,18 @@ struct Line_Model
   vec_t         normal;
 };
 
+struct Collision_Model
+{
+  Collision_Model_Type type;
+
+  union {
+    Round_Model   round;
+    Box_Model     box;
+    Segment_Model segment;
+    Line_Model    line;
+  };
+};
+
 // Round_Model x Round_Model
 // Round_Model x Box_Model
 // Round_Model x Segment_Model
@@ -50,10 +63,10 @@ struct Line_Model
  * Round_Model x Round_Model.
  */
 static inline
-bool is_colliding(const Round_Model &A,
-                  const vec_t       &pos_A,
-                  const Round_Model &B,
-                  const vec_t       &pos_B)
+bool is_colliding(const vec_t       &pos_A,
+                  const Round_Model &A,
+                  const vec_t       &pos_B,
+                  const Round_Model &B)
 {
   return glm::distance(pos_A, pos_B) < A.radius + B.radius;
 }
@@ -62,10 +75,10 @@ bool is_colliding(const Round_Model &A,
 /**
  * Round_Model x Line_Model
  */
-bool is_colliding(const Round_Model &A,
-                  const vec_t       &pos_A,
-                  const Line_Model  &B,
-                  const vec_t       &pos_B)
+bool is_colliding(const vec_t       &pos_A,
+                  const Round_Model &A,
+                  const vec_t       &pos_B,
+                  const Line_Model  &B)
 {
   auto L1     = pos_A - pos_B,
        L2     = L1 - B.normal;
@@ -80,10 +93,10 @@ bool is_colliding(const Round_Model &A,
  * Round_Model x Segment_Model
  */
 static inline
-bool is_colliding(const Round_Model   &A,
-                  const vec_t         &pos_A,
-                  const Segment_Model &B,
-                  const vec_t         &pos_B)
+bool is_colliding(const vec_t         &pos_A,
+                  const Round_Model   &A,
+                  const vec_t         &pos_B,
+                  const Segment_Model &B)
 {
   auto pass1 = math::is_inside(pos_B, pos_A, A.radius),
        pass2 = math::is_inside(pos_B + B.ending, pos_A, A.radius);
@@ -102,10 +115,10 @@ bool is_colliding(const Round_Model   &A,
  * Round_Model x Box_Model
  */
 static inline
-bool is_colliding(const Round_Model &A,
-                  const vec_t       &pos_A,
-                  const Box_Model   &B,
-                  const vec_t       &pos_B)
+bool is_colliding(const vec_t       &pos_A,
+                  const Round_Model &A,
+                  const vec_t       &pos_B,
+                  const Box_Model   &B)
 {
   if ( pos_A.x - A.radius > pos_B.x + B.border.x
     || pos_A.x + A.radius < pos_B.x - B.border.x
@@ -129,10 +142,10 @@ bool is_colliding(const Round_Model &A,
  * Box_Model x Box_Model
  */
 static inline
-bool is_colliding(const Box_Model &A,
-                  const vec_t     &pos_A,
-                  const Box_Model &B,
-                  const vec_t     &pos_B)
+bool is_colliding(const vec_t     &pos_A,
+                  const Box_Model &A,
+                  const vec_t     &pos_B,
+                  const Box_Model &B)
 {
   if ( pos_A.x + A.border.x < pos_B.x - B.border.x
     || pos_A.x - A.border.x > pos_B.x + B.border.x
@@ -149,10 +162,10 @@ bool is_colliding(const Box_Model &A,
  * Segment_Model x Segment_Model
  */
 static inline
-bool is_colliding(const Segment_Model &A,
-                  const vec_t         &pos_A,
-                  const Segment_Model &B,
-                  const vec_t         &pos_B)
+bool is_colliding(const vec_t         &pos_A,
+                  const Segment_Model &A,
+                  const vec_t         &pos_B,
+                  const Segment_Model &B)
 {
   return math::is_intersect(pos_A + A.ending, pos_A, pos_B + B.ending, pos_B);
 }
@@ -161,10 +174,10 @@ bool is_colliding(const Segment_Model &A,
  * Segment_Model x Line_Model
  */
 static inline
-bool is_colliding(const Segment_Model &A,
-                  const vec_t         &pos_A,
-                  const Line_Model    &B,
-                  const vec_t         &pos_B)
+bool is_colliding(const vec_t         &pos_A,
+                  const Segment_Model &A,
+                  const vec_t         &pos_B,
+                  const Line_Model    &B)
 {
   auto S1 = math::side(pos_A, pos_B, pos_B + B.normal),
        S2 = math::side(pos_A + A.ending, pos_B, pos_B + B.normal);
@@ -176,10 +189,10 @@ bool is_colliding(const Segment_Model &A,
  * Box_Model x Segment_Model
  */
 static inline
-bool is_colliding(const Box_Model     &A,
-                  const vec_t         &pos_A,
-                  const Segment_Model &B,
-                  const vec_t         &pos_B)
+bool is_colliding(const vec_t         &pos_A,
+                  const Box_Model     &A,
+                  const vec_t         &pos_B,
+                  const Segment_Model &B)
 {
   if ( math::is_inside(pos_B, pos_A, A.border)
     || math::is_inside(pos_B + B.ending, pos_A, A.border))
@@ -202,10 +215,10 @@ bool is_colliding(const Box_Model     &A,
  * Box_Model x Line_Model
  */
 static inline
-bool is_colliding(const Box_Model  &A,
-                  const vec_t      &pos_A,
-                  const Line_Model &B,
-                  const vec_t      &pos_B)
+bool is_colliding(const vec_t      &pos_A,
+                  const Box_Model  &A,
+                  const vec_t      &pos_B,
+                  const Line_Model &B)
 {
   vec_t LU = { pos_A.x - A.border.x, pos_A.y + A.border.y },
         RB = { pos_A.x + A.border.x, pos_A.y - A.border.y };
@@ -213,20 +226,20 @@ bool is_colliding(const Box_Model  &A,
   vec_t H = { 2 * A.border.x, 0 },
         V = { 0, 2 * A.border.y };
 
-  return is_colliding(Segment_Model {  H }, LU, B, pos_B)
-    ||   is_colliding(Segment_Model { -V }, LU, B, pos_B)
-    ||   is_colliding(Segment_Model { -H }, RB, B, pos_B)
-    ||   is_colliding(Segment_Model {  V }, RB, B, pos_B);
+  return is_colliding(LU, Segment_Model {  H }, pos_B, B)
+    ||   is_colliding(LU, Segment_Model { -V }, pos_B, B)
+    ||   is_colliding(RB, Segment_Model { -H }, pos_B, B)
+    ||   is_colliding(RB, Segment_Model {  V }, pos_B, B);
 }
 
 /**
  * Line_Model x Line_Model
  */
 static inline
-bool is_colliding(const Line_Model &A,
-                  const vec_t      &pos_A,
-                  const Line_Model &B,
-                  const vec_t      &pos_B)
+bool is_colliding(const vec_t      &pos_A,
+                  const Line_Model &A,
+                  const vec_t      &pos_B,
+                  const Line_Model &B)
 {
   // FIXME(ghlin) : 处理共线 2016-02-10 23:04:54
   XI_UNUSED(pos_A, pos_B);

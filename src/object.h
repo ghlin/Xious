@@ -42,19 +42,25 @@ namespace Xi {
 #define XI_PROP_IMPL_SET_END() return Super::set_property(key, val); }
 
 #define XI_PROP_EXPORT(...)        \
+protected:                         \
   XI_PROP_IMPL_GET_BEGIN()         \
     XI_PROP_GET_IMPL(__VA_ARGS__); \
   XI_PROP_IMPL_GET_END()           \
   XI_PROP_IMPL_SET_BEGIN()         \
     XI_PROP_SET_IMPL(__VA_ARGS__); \
   XI_PROP_IMPL_SET_END()           \
+public:                            \
   XI_PROP_DECL(__VA_ARGS__)
+
+class Object_Property_Ctrl;
 
 class Object : public std::enable_shared_from_this<Object>
 {
+  friend class Object_Property_Ctrl;
 public:
   virtual ~Object() = 0;
 
+protected:
   virtual Var  get_property(const Str &key) const;
   virtual void set_property(const Str &key, const Var &val);
 };
@@ -66,16 +72,18 @@ public:
   virtual Handle<Prototype> clone() const = 0;
 };
 
-class Shared_Clone : public Prototype
-{
-public:
-  virtual Handle<Prototype> clone() const override
-  {
-    return std::static_pointer_cast<Prototype>(const_cast<Shared_Clone *>(this)->shared_from_this());
+#define XI_SHARE_CLONE(Type)                          \
+  virtual Handle<Prototype> clone() const override    \
+  {                                                   \
+    return std::static_pointer_cast<Prototype>(       \
+      const_cast<Object *>(this)->share_from_this()); \
   }
-};
 
-#define XI_COPY_CLONE(Type) virtual Handle<Prototype> clone() const override { return new Type(*this); }
+#define XI_COPY_CLONE(Type)                           \
+  virtual Handle<Prototype> clone() const override    \
+  {                                                   \
+    return new Type(*this);                           \
+  }
 
 } // namespace Xi
 
