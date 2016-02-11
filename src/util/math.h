@@ -68,6 +68,24 @@ bool is_inside(const vec_t &point,
   return true;
 }
 
+static inline
+bool is_inside(const vec_t &P,
+               const vec_t &A, const vec_t &B, const vec_t &C)
+{
+  auto PA = A - P, PB = B - P, PC = C - P;
+  auto AB = B - A, AC = C - A;
+
+  auto sum = std::abs(cross_product(PA, PB))
+    +        std::abs(cross_product(PC, PB))
+    +        std::abs(cross_product(PA, PC));
+
+  auto tri = std::abs(cross_product(AB, AC));
+
+  if (sum > tri)
+    return false;
+
+  return true;
+}
 
 static inline
 float side(const vec_t &point,
@@ -75,6 +93,7 @@ float side(const vec_t &point,
 {
   return cross_product(point - A1, point - A2);
 }
+
 
 
 } // namespace math
