@@ -131,6 +131,49 @@ vec_t ease_in_out(float_t time_elpased,
     return ease_in<T>(time_elpased, duration / 2, change_value);
 }
 
+enum Curve_Type
+{
+  CT_Linear,
+  CT_Quadratic,
+  CT_Cubic,
+  CT_Quartic,
+  CT_Quintic,
+  CT_Sinusoidal,
+  CT_Exponential,
+};
+
+enum Curve_Change_Type
+{
+  CCT_Ease_In,
+  CCT_Ease_Out,
+  CCT_Ease_In_Out,
+};
+
+
+static inline
+auto *get_curve(Curve_Type ct, Curve_Change_Type cct)
+{
+  switch (cct)
+  {
+#define COMPOSE(Cur, CC) case XI_JOIN(CT_, Cur): return &CC<Cur>
+#define HANDLE(CCT) switch (ct) {  \
+      COMPOSE(Linear, CCT);        \
+      COMPOSE(Quadratic, CCT);     \
+      COMPOSE(Cubic, CCT);         \
+      COMPOSE(Quartic, CCT);       \
+      COMPOSE(Quintic, CCT);       \
+      COMPOSE(Sinusoidal, CCT);    \
+      COMPOSE(Exponential, CCT);   }
+  case CCT_Ease_In:      HANDLE(ease_in);
+  case CCT_Ease_Out:     HANDLE(ease_out);
+  case CCT_Ease_In_Out:  HANDLE(ease_in_out);
+#undef COMPOSE
+#undef HANDLE
+  }
+
+  return &Linear::update;
+}
+
 } // namespace curve
 } // namespace Xi
 

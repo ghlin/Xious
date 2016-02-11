@@ -1,18 +1,32 @@
 #ifndef MOTION_H_INCLUDED_XCIO5A7S
 #define MOTION_H_INCLUDED_XCIO5A7S
 
-#include "object.h"
+#include "actor.h"
 
 namespace Xi {
 
-class Motion : public Prototype
+class Motion : public Actor
 {
-  using Super = Prototype;
+  using Super = Actor;
+protected:
+  vec_t          position;
+  vec_t          velocity;
+
+  XI_PROP_EXPORT( (Position, position)
+                , (Velocity, velocity)
+                );
 public:
-  virtual vec_t move(float_t time_elpased,
-                     frame_t frame,
-                     const Update_Details &ud) = 0;
+  inline vec_t get_position() const
+  {
+    return position;
+  }
+
+  inline vec_t get_velocity() const
+  {
+    return velocity;
+  }
 };
+
 
 } // namespace Xi
 
