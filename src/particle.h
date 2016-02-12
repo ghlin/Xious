@@ -10,10 +10,6 @@ class Particle : public Actor
 {
   using Super = Actor;
 protected:
-  Handle<Motion>      motion;
-  Handle<Actor>       actor;
-  uint32_t            flags = 0,
-                      tag   = 0;
 
   XI_PROP_EXPORT( (Motion, motion)
                 , (Actor, actor)
@@ -21,6 +17,11 @@ protected:
                 , (Tag, tag)
                 );
 public:
+  Handle<Motion>      motion;
+  Handle<Actor>       actor;
+  uint32_t            flags = 0,
+                      tag   = 0;
+
   Particle(Handle<Motion> motion,
            Handle<Actor>  actor,
            uint32_t       flags,
@@ -30,6 +31,7 @@ public:
     , flags(flags)
     , tag(tag)
   { }
+
 
   inline vec_t get_position() const
   {
