@@ -1,7 +1,7 @@
 #ifndef PARAMETERIZED_H_INCLUDED_ZUOANP7S
 #define PARAMETERIZED_H_INCLUDED_ZUOANP7S
 
-#include "../motion.h"
+#include "../task.h"
 
 namespace Xi {
 
@@ -25,9 +25,9 @@ struct Update_Parameter
                      change_value;
 };
 
-class Parameterized_Motion : public Motion
+class Parameterized_Movement : public Task
 {
-  using Super = Motion;
+  using Super = Task;
 protected:
   Update_Parameter upx, upy;
 
@@ -35,11 +35,13 @@ protected:
                 , (Update_Parameter_Y, upy)
                 );
 public:
-  Parameterized_Motion(Update_Parameter upx,
-                       Update_Parameter upy)
+  Parameterized_Movement(Update_Parameter upx,
+                         Update_Parameter upy)
     : upx(upx)
     , upy(upy)
   { }
+
+  XI_COPY_CLONE(Parameterized_Movement)
 protected:
   virtual void update_logic(const Update_Details &ud) override;
 };

@@ -1,8 +1,7 @@
 #ifndef PARTICLE_H_INCLUDED_Y6JTAFLH
 #define PARTICLE_H_INCLUDED_Y6JTAFLH
 
-#include "motion.h"
-#include "actor.h"
+#include "task.h"
 
 namespace Xi {
 
@@ -11,23 +10,23 @@ class Particle : public Actor
   using Super = Actor;
 protected:
 
-  XI_PROP_EXPORT( (Motion, motion)
-                , (Actor, actor)
+  XI_PROP_EXPORT( (Task, task)
                 , (Flags, flags)
                 , (Tag, tag)
                 );
 public:
-  Handle<Motion>      motion;
-  Handle<Actor>       actor;
+  Handle<Task>        task;
   uint32_t            flags = 0,
                       tag   = 0;
 
-  Particle(Handle<Motion> motion,
-           Handle<Actor>  actor,
+  Particle() { }
+  Particle(const Particle &) = default;
+  Particle(Particle &&) = default;
+
+  Particle(Handle<Task>   task,
            uint32_t       flags,
            uint32_t       tag)
-    : motion(std::move(motion))
-    , actor(std::move(actor))
+    : task(std::move(task))
     , flags(flags)
     , tag(tag)
   { }
@@ -35,18 +34,18 @@ public:
 
   inline vec_t get_position() const
   {
-    return motion->get_position();
+    return task->get_position();
   }
 
   inline vec_t get_velocity() const
   {
-    return motion->get_velocity();
+    return task->get_velocity();
   }
 
 protected:
-  virtual void update_logic(const Update_Details &ud)
+  virtual void update_logic(const Update_Details &ud) override
   {
-    return actor->update(ud);
+    return task->update(ud);
   }
 };
 

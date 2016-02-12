@@ -4,9 +4,13 @@
 namespace Xi {
 
 class Object;
+class Particle;
 class Entity;
 class Actor;
 class Chapter;
+class Render;
+class Collider;
+class Task;
 class Instance;
 
 struct Update_Details;

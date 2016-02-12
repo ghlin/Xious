@@ -15,6 +15,14 @@ struct Update_Details
   Entity         *focus;
   Entity         *charactor;
   Chapter        *chapter;
+
+  struct World_Border
+  {
+    float_t       width, height,
+                  ws, hs; // half.
+  };
+
+  World_Border    border;
 };
 
 } // namespace Xi

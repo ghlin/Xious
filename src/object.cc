@@ -16,5 +16,12 @@ void Object::set_property(const Str &, const Var &)
   return;
 }
 
+Handle<Prototype> Prototype::clone() const
+{
+  Xi_die("Clone not impl...");
+
+  return nullptr;
+}
+
 } // namespace Xi
 

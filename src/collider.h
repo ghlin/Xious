@@ -141,7 +141,8 @@ public:
 protected:
   virtual bool special_colliding_logic(const vec_t    &this_pos,
                                        const Collider *another,
-                                       const vec_t    &another_pos) const = 0;
+                                       const vec_t    &another_pos) const;
+
 };
 
 } // namespace Xi

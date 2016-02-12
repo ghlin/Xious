@@ -24,7 +24,7 @@ protected:
 class Prototype : public Object
 {
 public:
-  virtual Handle<Prototype> clone() const = 0;
+  virtual Handle<Prototype> clone() const;
 };
 
 #define XI_SHARE_CLONE(Type)                          \
@@ -37,7 +37,7 @@ public:
 #define XI_COPY_CLONE(Type)                           \
   virtual Handle<Prototype> clone() const override    \
   {                                                   \
-    return new Type(*this);                           \
+    return std::make_shared<Type>(*this);             \
   }
 
 } // namespace Xi

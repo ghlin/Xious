@@ -1,11 +1,11 @@
-#ifndef MOTION_H_INCLUDED_XCIO5A7S
-#define MOTION_H_INCLUDED_XCIO5A7S
+#ifndef TASK_H_INCLUDED_5KI9LKLH
+#define TASK_H_INCLUDED_5KI9LKLH
 
 #include "actor.h"
 
 namespace Xi {
 
-class Motion : public Actor
+class Task : public Actor
 {
   using Super = Actor;
 protected:
@@ -14,6 +14,10 @@ protected:
 
   XI_PROP_EXPORT( (Position, position)
                 , (Velocity, velocity)
+                , (Position_X, position.x)
+                , (Position_Y, position.y)
+                , (Velocity_X, velocity.x)
+                , (Velocity_Y, velocity.y)
                 );
 public:
   inline vec_t get_position() const
@@ -27,8 +31,7 @@ public:
   }
 };
 
-
 } // namespace Xi
 
-#endif // end of include guard: MOTION_H_INCLUDED_XCIO5A7S
+#endif // end of include guard: TASK_H_INCLUDED_5KI9LKLH
 

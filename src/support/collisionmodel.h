@@ -75,6 +75,7 @@ bool is_colliding(const vec_t       &pos_A,
 /**
  * Round_Model x Line_Model
  */
+static inline
 bool is_colliding(const vec_t       &pos_A,
                   const Round_Model &A,
                   const vec_t       &pos_B,

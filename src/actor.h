@@ -42,16 +42,18 @@ public:
   inline void update(const Update_Details &ud)
   {
     if (skip_double_updating && updated_this_frame(ud))
-    {
-      frame         += ud.delta_frame;
-      time_elpased  += ud.delta_time_elpased;
-      frame_skipped  = update_mark == std::numeric_limits<frame_t>::max()
-        ?              0
-        :              ud.frame - update_mark - 1;
-      update_mark    = ud.frame;
+      return;
 
-      update_logic(ud);
-    }
+    frame         += ud.delta_frame;
+    time_elpased  += ud.delta_time_elpased;
+
+    frame_skipped  = update_mark == std::numeric_limits<frame_t>::max()
+      ?              0
+      :              ud.frame - update_mark - 1;
+
+    update_mark    = ud.frame;
+
+    update_logic(ud);
   }
 };
 

@@ -21,7 +21,7 @@ vec_t update(const Update_Parameter &up, float_t time_elpased)
   return up.update_function(time_elpased, up.duration, up.change_value);
 }
 
-void Parameterized_Motion::update_logic(const Update_Details &ud)
+void Parameterized_Movement::update_logic(const Update_Details &ud)
 {
   auto X = Xi::update(upx, get_time_elpased()),
        Y = Xi::update(upy, get_time_elpased());
