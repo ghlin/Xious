@@ -74,10 +74,10 @@ int render_text(::SDL_Renderer *renderer,
     ::SDL_Rect  target = { pos_x, pos_y, g_text_textures_rect[ch].w, g_text_textures_rect[ch].h };
     ::SDL_RenderCopy(renderer, g_text_textures[ch], nullptr, &target);
 
-    if ((pos_x += g_text_textures_rect[ch].w + 3) > G_WINDOW_W || ch == '\n')
+    if ((pos_x += g_text_textures_rect[ch].w) > G_WINDOW_W || ch == '\n')
     {
       pos_x = x;
-      pos_y += g_text_textures_rect[ch].h + 4;
+      pos_y += g_text_textures_rect[ch].h;
     }
   }
 

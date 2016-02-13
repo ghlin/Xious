@@ -30,7 +30,7 @@ attr_export
 void register_chapter(Handle<Chapter> chapter);
 
 attr_export
-const std::list<Handle<Chapter>> &get_chapters();
+const std::vector<Handle<Chapter>> &get_chapters();
 
 #define XI_DEF_CHAPTER(token)                                     \
   class token;                                                    \

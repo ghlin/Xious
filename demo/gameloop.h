@@ -3,7 +3,7 @@
 
 #include "demo.h"
 #include "chapter.h"
-
+#include "updategroup.h"
 
 namespace Xi {
 
@@ -16,11 +16,12 @@ public:
   Draw_Details dd = { };
 
   Handle<Update_Group> group;
-
-  Handle<Chapter> chapter;
+  Handle<Entity>       player;
+  Handle<Chapter>      chapter;
 
   inline void change_chapter(Handle<Chapter> chapter)
   {
+    group->entities.clear();
     this->chapter = chapter;
     this->chapter->initialize_chapter(this);
 
@@ -28,6 +29,8 @@ public:
 
     Xi_log("set chapter %s", chapter->title);
   }
+
+  void switch_chapter(int off);
 
   void update(float_t delta_time_elpased);
   void render();

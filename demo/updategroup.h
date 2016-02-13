@@ -14,7 +14,7 @@ enum Update_Flags
 class Update_Group : public Actor
 {
   using Super = Actor;
-protected:
+public:
   std::list<Handle<Entity>> entities;
 
   XI_PROP_EXPORT( (Entities, entities)

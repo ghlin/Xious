@@ -19,16 +19,19 @@ int main(int argc, const char **argv)
   auto               very_beginning     = last_update_time;
   auto               CONFIG_FPS         = 60;
   float_t            fps_delta_time     = 1.0f / CONFIG_FPS;
-  auto              *renderer           = scope.renderer;
-  auto              *window             = scope.window;
   float_t            max_update_time    = 0.0f;
   float_t            max_render_time    = 0.0f;
   float_t            total_update_time  = 0.0f;
   float_t            total_render_time  = 0.0f;
   float_t            total_elpased_time = 0.0f;
+  float_t            play_speed         = 1.0f;
+  int                chapter_idx        = 0;
 
-  SDL_Rect   scene_rect = { G_SCENE_X, G_SCENE_Y, G_SCENE_W, G_SCENE_H };
-  SDL_Event  e;
+  auto              *renderer           = scope.renderer;
+  auto              *window             = scope.window;
+
+  ::SDL_Rect   scene_rect = { G_SCENE_X, G_SCENE_Y, G_SCENE_W, G_SCENE_H };
+  ::SDL_Event  e;
 
   auto game_loop = Game_Loop(renderer);
   do
@@ -40,11 +43,11 @@ int main(int argc, const char **argv)
     {
       ++ticks;
 
-      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-      SDL_RenderClear(renderer);
+      ::SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+      ::SDL_RenderClear(renderer);
 
       auto before_update = std::chrono::high_resolution_clock::now();
-      game_loop.update(diff.count());
+      game_loop.update(diff.count() * play_speed);
       auto after_update = std::chrono::high_resolution_clock::now();
 
       auto update_time = std::chrono::duration<float>(after_update - before_update).count();
@@ -58,8 +61,8 @@ int main(int argc, const char **argv)
       total_update_time += update_time;
       total_render_time += render_time;
 
-      SDL_SetRenderDrawColor(renderer, 122, 122, 122, 0);
-      SDL_RenderDrawRect(renderer, &scene_rect);
+      ::SDL_SetRenderDrawColor(renderer, 122, 122, 122, 0);
+      ::SDL_RenderDrawRect(renderer, &scene_rect);
 
       if (update_time > max_update_time)
         max_update_time = update_time;
@@ -69,6 +72,8 @@ int main(int argc, const char **argv)
 
       char diag[400];
       std::sprintf(diag,
+                   "[%s] (of %zu)\n"
+                   "ply speed : %6f.\n"
                    "elpased   : %6f.\n"
                    "avg elp   : %6f.\n"
                    "update    : %6f.\n"
@@ -83,6 +88,9 @@ int main(int argc, const char **argv)
                    "ticks     : %llu.\n"
                    "FPS       : %6f.\n"
                    "objs      : %zu.\n",
+                   game_loop.chapter->title.c_str(),
+                   get_chapters().size(),
+                   play_speed,
                    diff.count(),
                    (total_elpased_time += diff.count()) / ticks,
                    update_time,
@@ -100,14 +108,34 @@ int main(int argc, const char **argv)
 
       render_text(renderer, G_SCENE_W + 20, 10 + 10, diag);
 
-      SDL_RenderPresent(renderer);
+      ::SDL_RenderPresent(renderer);
 
       last_update_time = std::chrono::high_resolution_clock::now();
     }
 
-    while (SDL_PollEvent(&e) && e.type != SDL_QUIT)
+    while (::SDL_PollEvent(&e) && e.type != SDL_QUIT)
     {
-      // TODO(ghlin) : handle event. 2016-02-13 14:28:55
+      if (e.type == SDL_KEYDOWN)
+      {
+        Xi_log("%s key down.", ::SDL_GetKeyName(e.key.keysym.sym));
+        switch (e.key.keysym.sym)
+        {
+        case SDLK_a: game_loop.switch_chapter(chapter_idx--);
+          break;
+
+        case SDLK_s: game_loop.switch_chapter(chapter_idx++);
+          break;
+
+        case SDLK_EQUALS: play_speed /= 2;
+          break;
+
+        case SDLK_MINUS: play_speed *= 2;
+          break;
+
+        default:
+          ;
+        }
+      }
     }
   } while (e.type != SDL_QUIT);
 

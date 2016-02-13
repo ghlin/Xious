@@ -8,6 +8,7 @@ namespace Xi {
 
 Game_Loop::Game_Loop(::SDL_Renderer *renderer)
   : dd { }
+  , player(new Entity)
   , group(new Update_Group)
 {
   dd.renderer = static_cast<SDL_Renderer *>(renderer);
@@ -20,8 +21,6 @@ Game_Loop::Game_Loop(::SDL_Renderer *renderer)
 
   dd.scene_w       = G_SCENE_W;
   dd.scene_h       = G_SCENE_H;
-
-  Xi_log("锵锵锵!!!!");
 }
 
 void Game_Loop::update(float_t dt)
@@ -34,6 +33,19 @@ void Game_Loop::update(float_t dt)
 
   chapter->update(dd);
   group->update(dd);
+
+  // player->update(dd);
+}
+
+void Game_Loop::switch_chapter(int off)
+{
+  auto &chapaters = get_chapters();
+  auto  size      = chapaters.size();
+
+  while (off < 0 && -off > (int)size)
+    off += size;
+
+  change_chapter(chapaters.at((size + off) % size));
 }
 
 void Game_Loop::render()
