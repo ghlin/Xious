@@ -110,6 +110,7 @@ vec_t ease_in(float_t time_elpased,
   return T::update(time_elpased, duration, change_value);
 }
 
+// FIXME(ghlin) : 2016-02-13 16:26:45
 template <class T>
 static inline
 vec_t ease_out(float_t time_elpased,
@@ -120,6 +121,7 @@ vec_t ease_out(float_t time_elpased,
   return { change_value - rei.x, rei.y };
 }
 
+// FIXME(ghlin) : 2016-02-13 16:26:50
 template <class T>
 static inline
 vec_t ease_in_out(float_t time_elpased,
