@@ -1,6 +1,6 @@
 *.o
 *.out
-*/app
+demo/app
 test/
 *.swp
 *.swo
