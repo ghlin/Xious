@@ -11,7 +11,6 @@ bool update_routine(Handle<Entity> &entity,
 {
   ud.focus = entity.get();
 
-
   entity->update(ud);
 
   auto position = entity->get_position();
@@ -32,12 +31,26 @@ bool update_routine(Handle<Entity> &entity,
     }
   }
 
+  if (entity->flags | Die_If_Live_Too_Long)
+  {
+    if (entity->get_time_elpased() > XI_MAX_STAY_TIME)
+    {
+      entity->state = ES_To_Remove;
+    }
+  }
+
   return false;
 }
 
 void Update_Group::update_logic(const Update_Details &ud)
 {
-  entities.remove_if([ud] (auto &e) { return update_routine(e, ud); });
+  for (auto iter = entities.begin(); iter != entities.end(); )
+  {
+    if (update_routine(*iter, ud))
+      iter = entities.erase(iter);
+    else
+      ++iter;
+  }
 }
 
 void Update_Group::draw(Draw_Details dd)

@@ -8,6 +8,7 @@ namespace Xi {
 enum Update_Flags
 {
   Die_If_Move_Off_Screen = 0x1,
+  Die_If_Live_Too_Long   = 0x2,
 };
 
 class Update_Group : public Actor

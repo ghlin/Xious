@@ -1,23 +1,10 @@
 #include "demo.h"
-#include "textures.h"
+#include "sdlutils.h"
 #include "gameloop.h"
+#include "textures.h"
+#include "updategroup.h"
 
-namespace Xi {
 
-
-float fps_delta_time(unsigned fps)
-{
-  return 1.0f / fps;
-}
-
-template <class T>
-bool fps_ctrl(T *last, unsigned fps)
-{
-
-  return true;
-}
-
-} // namespace Xi
 
 int main(int argc, const char **argv)
 {
@@ -25,93 +12,111 @@ int main(int argc, const char **argv)
 
   init::bootstrap_initialize(argc, argv);
 
-  // {{{
-  if (SDL_Init(SDL_INIT_VIDEO) != 0)
-  {
-    log_sdlerror("SDL_Init", "");
+  SDL_Scope scope;
 
-    return -1;
-  }
+  unsigned long long ticks              = 0;
+  auto               last_update_time   = std::chrono::high_resolution_clock::now();
+  auto               very_beginning     = last_update_time;
+  auto               CONFIG_FPS         = 60;
+  float_t            fps_delta_time     = 1.0f / CONFIG_FPS;
+  auto              *renderer           = scope.renderer;
+  auto              *window             = scope.window;
+  float_t            max_update_time    = 0.0f;
+  float_t            max_render_time    = 0.0f;
+  float_t            total_update_time  = 0.0f;
+  float_t            total_render_time  = 0.0f;
+  float_t            total_elpased_time = 0.0f;
 
-  auto _1 = u_defer { SDL_Quit(); };
-
-  auto *window = check_sdl_call(
-    ::SDL_CreateWindow(
-      "STG Demo :: Demo",
-      SDL_WINDOWPOS_CENTERED,
-      SDL_WINDOWPOS_CENTERED,
-      G_WINDOW_W,
-      G_WINDOW_H,
-      SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE));
-
-  check_and_cleanup_later(window);
-
-  auto renderer = check_sdl_call(
-    SDL_CreateRenderer(window,
-                       -1,
-                       SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
-
-  check_and_cleanup_later(window);
-  // }}}
-
-  load_textures(renderer);
-
+  SDL_Rect   scene_rect = { G_SCENE_X, G_SCENE_Y, G_SCENE_W, G_SCENE_H };
   SDL_Event  e;
-  Game_Loop gl(renderer);
 
-  unsigned long long tick             = 0;
-  auto               last_update_time = std::chrono::high_resolution_clock::now();
-  auto               vary_beginning   = last_update_time;
-  auto               CONFIG_FPS       = 60;
-
-  float_t            fps              = 0.0f;
-
-  SDL_Rect g_scene_rect = { G_SCENE_X, G_SCENE_Y, G_SCENE_W, G_SCENE_H };
-  SDL_Rect fpsrept_rect = { 0, 0, G_SCENE_X, G_SCENE_Y };
-
+  auto game_loop = Game_Loop(renderer);
   do
   {
     auto before_update                = std::chrono::high_resolution_clock::now();
     std::chrono::duration<float> diff = before_update - last_update_time;
 
-    if (diff.count() < fps_delta_time(CONFIG_FPS))
+    if (diff.count() >= fps_delta_time - 0.001f)
     {
+      ++ticks;
+
       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
       SDL_RenderClear(renderer);
-      SDL_SetRenderDrawColor(renderer, 122, 122, 122, 0);
-      SDL_RenderDrawRect(renderer, &g_scene_rect);
 
-      gl.render();
-
-      if (fps < 30.0f)
-        SDL_SetRenderDrawColor(renderer, 250, 0, 0, 0);
-      else if (fps < 50.0f)
-        SDL_SetRenderDrawColor(renderer, 0, 250, 0, 0);
-      else if (fps > 60.0f)
-        SDL_SetRenderDrawColor(renderer, 0, 0, 250, 0);
-      else
-        SDL_SetRenderDrawColor(renderer, 250, 250, 250, 0);
-
-      SDL_RenderDrawRect(renderer, &fpsrept_rect);
-      SDL_RenderPresent(renderer);
-    }
-    else
-    {
-      gl.update(diff.count());
-      ++tick;
-
+      auto before_update = std::chrono::high_resolution_clock::now();
+      game_loop.update(diff.count());
       auto after_update = std::chrono::high_resolution_clock::now();
-      std::chrono::duration<float> update_time_elpased = before_update  - after_update;
-      std::chrono::duration<float> total_time_elpased  = vary_beginning - after_update;
 
-      fps = tick / total_time_elpased.count();
+      auto update_time = std::chrono::duration<float>(after_update - before_update).count();
+      game_loop.render();
+      auto after_render = std::chrono::high_resolution_clock::now();
 
-      last_update_time = after_update;
+      auto render_time = std::chrono::duration<float>(after_render - after_update).count();
+
+      auto total_time  = std::chrono::duration<float>(after_render - very_beginning).count();
+
+      total_update_time += update_time;
+      total_render_time += render_time;
+
+      SDL_SetRenderDrawColor(renderer, 122, 122, 122, 0);
+      SDL_RenderDrawRect(renderer, &scene_rect);
+
+      if (update_time > max_update_time)
+        max_update_time = update_time;
+
+      if (render_time > max_render_time)
+        max_render_time = render_time;
+
+      char diag[400];
+      std::sprintf(diag,
+                   "elpased   : %6f.\n"
+                   "avg elp   : %6f.\n"
+                   "update    : %6f.\n"
+                   "max upd   : %6f.\n"
+                   "render    : %6f.\n"
+                   "max rnd   : %6f.\n"
+                   "total     : %6f.\n"
+                   "total upd : %6f.\n"
+                   "total rnd : %6f.\n"
+                   "avg upd   : %6f.\n"
+                   "avg rnd   : %6f.\n"
+                   "ticks     : %llu.\n"
+                   "FPS       : %6f.\n"
+                   "objs      : %zu.\n",
+                   diff.count(),
+                   (total_elpased_time += diff.count()) / ticks,
+                   update_time,
+                   max_update_time,
+                   render_time,
+                   max_render_time,
+                   total_time,
+                   total_update_time,
+                   total_render_time,
+                   total_update_time / ticks,
+                   total_render_time / ticks,
+                   ticks,
+                   ticks / total_time,
+                   game_loop.group->entities_count());
+
+      render_text(renderer, G_SCENE_W + 20, 10 + 10, diag);
+
+      SDL_RenderPresent(renderer);
+
+      last_update_time = std::chrono::high_resolution_clock::now();
     }
 
     while (SDL_PollEvent(&e) && e.type != SDL_QUIT)
-      ;
+    {
+      // TODO(ghlin) : handle event. 2016-02-13 14:28:55
+    }
   } while (e.type != SDL_QUIT);
+
+  std::chrono::duration<float> total = std::chrono::high_resolution_clock::now() - very_beginning;
+
+  Xi_log("total ticks : %llu, in %f seconds. fps(avg) ~~ %f.",
+         ticks, total.count(), ticks / total.count());
+
+  Xi_log("max update time : %f.", max_update_time);
 
   init::bootstrap_finalize();
 

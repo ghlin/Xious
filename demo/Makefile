@@ -4,32 +4,37 @@ CC              :=clang
 CXX             :=clang++
 PREFLAGS        := -std=c++1y -I/usr/local/include  '-I../src' '-I.'
 PRELNKFLAGS     :=  -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_ttf
-FLAGS           :=
+FLAGS           := -O3
 LNKFLAGS        :=
 
-all : ___src__collider.o ___src__object.o ___src_support__bootstrap.o ___src_support__init.o ___src_tasks__compose.o ___src_tasks__parameterized.o ___chapter.o ___gameloop.o ___main.o ___render.o ___spawn.o ___textures.o ___updategroup.o __chapters__c1.o app
+all : objs objs/___src__collider.o objs/___src__object.o objs/___src_support__bootstrap.o objs/___src_support__init.o objs/___src_tasks__compose.o objs/___src_tasks__parameterized.o objs/___chapter.o objs/___gameloop.o objs/___main.o objs/___render.o objs/___sdlutils.o objs/___spawn.o objs/___textures.o objs/___updategroup.o objs/__chapters__c1.o app
+
+objs :
+	@echo prepare output dir.
+	@[ -d objs ] || mkdir objs
 
 clean:
 	@[ -f app ] && rm -vf app || echo "Skip: app"
-	@[ -f ___src__collider.o ] && rm -vf ___src__collider.o || echo "Skip: ___src__collider.o"
-	@[ -f ___src__object.o ] && rm -vf ___src__object.o || echo "Skip: ___src__object.o"
-	@[ -f ___src_support__bootstrap.o ] && rm -vf ___src_support__bootstrap.o || echo "Skip: ___src_support__bootstrap.o"
-	@[ -f ___src_support__init.o ] && rm -vf ___src_support__init.o || echo "Skip: ___src_support__init.o"
-	@[ -f ___src_tasks__compose.o ] && rm -vf ___src_tasks__compose.o || echo "Skip: ___src_tasks__compose.o"
-	@[ -f ___src_tasks__parameterized.o ] && rm -vf ___src_tasks__parameterized.o || echo "Skip: ___src_tasks__parameterized.o"
-	@[ -f ___chapter.o ] && rm -vf ___chapter.o || echo "Skip: ___chapter.o"
-	@[ -f ___gameloop.o ] && rm -vf ___gameloop.o || echo "Skip: ___gameloop.o"
-	@[ -f ___main.o ] && rm -vf ___main.o || echo "Skip: ___main.o"
-	@[ -f ___render.o ] && rm -vf ___render.o || echo "Skip: ___render.o"
-	@[ -f ___spawn.o ] && rm -vf ___spawn.o || echo "Skip: ___spawn.o"
-	@[ -f ___textures.o ] && rm -vf ___textures.o || echo "Skip: ___textures.o"
-	@[ -f ___updategroup.o ] && rm -vf ___updategroup.o || echo "Skip: ___updategroup.o"
-	@[ -f __chapters__c1.o ] && rm -vf __chapters__c1.o || echo "Skip: __chapters__c1.o"
-app : ___src__collider.o ___src__object.o ___src_support__bootstrap.o ___src_support__init.o ___src_tasks__compose.o ___src_tasks__parameterized.o ___chapter.o ___gameloop.o ___main.o ___render.o ___spawn.o ___textures.o ___updategroup.o __chapters__c1.o
+	@[ -f objs/___src__collider.o ] && rm -vf objs/___src__collider.o || echo "Skip: objs/___src__collider.o"
+	@[ -f objs/___src__object.o ] && rm -vf objs/___src__object.o || echo "Skip: objs/___src__object.o"
+	@[ -f objs/___src_support__bootstrap.o ] && rm -vf objs/___src_support__bootstrap.o || echo "Skip: objs/___src_support__bootstrap.o"
+	@[ -f objs/___src_support__init.o ] && rm -vf objs/___src_support__init.o || echo "Skip: objs/___src_support__init.o"
+	@[ -f objs/___src_tasks__compose.o ] && rm -vf objs/___src_tasks__compose.o || echo "Skip: objs/___src_tasks__compose.o"
+	@[ -f objs/___src_tasks__parameterized.o ] && rm -vf objs/___src_tasks__parameterized.o || echo "Skip: objs/___src_tasks__parameterized.o"
+	@[ -f objs/___chapter.o ] && rm -vf objs/___chapter.o || echo "Skip: objs/___chapter.o"
+	@[ -f objs/___gameloop.o ] && rm -vf objs/___gameloop.o || echo "Skip: objs/___gameloop.o"
+	@[ -f objs/___main.o ] && rm -vf objs/___main.o || echo "Skip: objs/___main.o"
+	@[ -f objs/___render.o ] && rm -vf objs/___render.o || echo "Skip: objs/___render.o"
+	@[ -f objs/___sdlutils.o ] && rm -vf objs/___sdlutils.o || echo "Skip: objs/___sdlutils.o"
+	@[ -f objs/___spawn.o ] && rm -vf objs/___spawn.o || echo "Skip: objs/___spawn.o"
+	@[ -f objs/___textures.o ] && rm -vf objs/___textures.o || echo "Skip: objs/___textures.o"
+	@[ -f objs/___updategroup.o ] && rm -vf objs/___updategroup.o || echo "Skip: objs/___updategroup.o"
+	@[ -f objs/__chapters__c1.o ] && rm -vf objs/__chapters__c1.o || echo "Skip: objs/__chapters__c1.o"
+app : objs/___src__collider.o objs/___src__object.o objs/___src_support__bootstrap.o objs/___src_support__init.o objs/___src_tasks__compose.o objs/___src_tasks__parameterized.o objs/___chapter.o objs/___gameloop.o objs/___main.o objs/___render.o objs/___sdlutils.o objs/___spawn.o objs/___textures.o objs/___updategroup.o objs/__chapters__c1.o
 	@echo Linking: app
-	@clang++ ___src__collider.o ___src__object.o ___src_support__bootstrap.o ___src_support__init.o ___src_tasks__compose.o ___src_tasks__parameterized.o ___chapter.o ___gameloop.o ___main.o ___render.o ___spawn.o ___textures.o ___updategroup.o __chapters__c1.o -o app ${LNKFLAGS} ${PRELNKFLAGS}
+	@clang++ objs/___src__collider.o objs/___src__object.o objs/___src_support__bootstrap.o objs/___src_support__init.o objs/___src_tasks__compose.o objs/___src_tasks__parameterized.o objs/___chapter.o objs/___gameloop.o objs/___main.o objs/___render.o objs/___sdlutils.o objs/___spawn.o objs/___textures.o objs/___updategroup.o objs/__chapters__c1.o -o app ${LNKFLAGS} ${PRELNKFLAGS}
 
-___src__collider.o : \
+objs/___src__collider.o : \
  ../src/collider.cc ../src/collider.h ../src/actor.h \
   ../src/object.h ../src/config.h ../src/common/pp.h \
   ../src/common/base.h ../src/common/stdincl.h ../src/common/ifdebug.h \
@@ -110,9 +115,9 @@ ___src__collider.o : \
   ../src/property.h ../src/updatedetails.h \
   ../src/support/collisionmodel.h ../src/support/../util/math.h
 	@echo "clang++ ../src/collider.cc"
-	@${CXX} -c ../src/collider.cc -o ___src__collider.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ../src/collider.cc -o objs/___src__collider.o ${FLAGS} ${PREFLAGS}
 
-___src__object.o : \
+objs/___src__object.o : \
  ../src/object.cc ../src/object.h ../src/config.h \
   ../src/common/pp.h ../src/common/base.h ../src/common/stdincl.h \
   ../src/common/ifdebug.h ../src/common/copyctrl.h ../src/fwd.h \
@@ -192,9 +197,9 @@ ___src__object.o : \
   /usr/local/include/glm/detail/func_integer.inl ../src/variant.h \
   ../src/property.h
 	@echo "clang++ ../src/object.cc"
-	@${CXX} -c ../src/object.cc -o ___src__object.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ../src/object.cc -o objs/___src__object.o ${FLAGS} ${PREFLAGS}
 
-___src_support__bootstrap.o : \
+objs/___src_support__bootstrap.o : \
  ../src/support/bootstrap.cc ../src/support/bootstrap.h \
   ../src/support/../config.h ../src/common/pp.h ../src/common/base.h \
   ../src/common/stdincl.h ../src/common/ifdebug.h \
@@ -273,9 +278,9 @@ ___src_support__bootstrap.o : \
   /usr/local/include/glm/detail/func_integer.hpp \
   /usr/local/include/glm/detail/func_integer.inl ../src/support/init.h
 	@echo "clang++ ../src/support/bootstrap.cc"
-	@${CXX} -c ../src/support/bootstrap.cc -o ___src_support__bootstrap.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ../src/support/bootstrap.cc -o objs/___src_support__bootstrap.o ${FLAGS} ${PREFLAGS}
 
-___src_support__init.o : \
+objs/___src_support__init.o : \
  ../src/support/init.cc ../src/support/init.h \
   ../src/support/../config.h ../src/common/pp.h ../src/common/base.h \
   ../src/common/stdincl.h ../src/common/ifdebug.h \
@@ -354,9 +359,9 @@ ___src_support__init.o : \
   /usr/local/include/glm/detail/func_integer.hpp \
   /usr/local/include/glm/detail/func_integer.inl
 	@echo "clang++ ../src/support/init.cc"
-	@${CXX} -c ../src/support/init.cc -o ___src_support__init.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ../src/support/init.cc -o objs/___src_support__init.o ${FLAGS} ${PREFLAGS}
 
-___src_tasks__compose.o : \
+objs/___src_tasks__compose.o : \
  ../src/tasks/compose.cc ../src/tasks/compose.h \
   ../src/tasks/../task.h ../src/actor.h ../src/object.h ../src/config.h \
   ../src/common/pp.h ../src/common/base.h ../src/common/stdincl.h \
@@ -437,9 +442,9 @@ ___src_tasks__compose.o : \
   /usr/local/include/glm/detail/func_integer.inl ../src/variant.h \
   ../src/property.h ../src/updatedetails.h
 	@echo "clang++ ../src/tasks/compose.cc"
-	@${CXX} -c ../src/tasks/compose.cc -o ___src_tasks__compose.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ../src/tasks/compose.cc -o objs/___src_tasks__compose.o ${FLAGS} ${PREFLAGS}
 
-___src_tasks__parameterized.o : \
+objs/___src_tasks__parameterized.o : \
  ../src/tasks/parameterized.cc \
   ../src/tasks/parameterized.h ../src/tasks/../task.h ../src/actor.h \
   ../src/object.h ../src/config.h ../src/common/pp.h \
@@ -520,9 +525,9 @@ ___src_tasks__parameterized.o : \
   /usr/local/include/glm/detail/func_integer.inl ../src/variant.h \
   ../src/property.h ../src/updatedetails.h
 	@echo "clang++ ../src/tasks/parameterized.cc"
-	@${CXX} -c ../src/tasks/parameterized.cc -o ___src_tasks__parameterized.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ../src/tasks/parameterized.cc -o objs/___src_tasks__parameterized.o ${FLAGS} ${PREFLAGS}
 
-___chapter.o : \
+objs/___chapter.o : \
  chapter.cc chapter.h demo.h ../src/all.h ../src/actor.h \
   ../src/object.h ../src/config.h ../src/common/pp.h \
   ../src/common/base.h ../src/common/stdincl.h ../src/common/ifdebug.h \
@@ -649,9 +654,9 @@ ___chapter.o : \
   /usr/local/include/SDL2/SDL_version.h \
   /usr/local/include/SDL2/SDL_image.h /usr/local/include/SDL2/SDL_ttf.h
 	@echo "clang++ ./chapter.cc"
-	@${CXX} -c ./chapter.cc -o ___chapter.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ./chapter.cc -o objs/___chapter.o ${FLAGS} ${PREFLAGS}
 
-___gameloop.o : \
+objs/___gameloop.o : \
  gameloop.cc gameloop.h demo.h ../src/all.h ../src/actor.h \
   ../src/object.h ../src/config.h ../src/common/pp.h \
   ../src/common/base.h ../src/common/stdincl.h ../src/common/ifdebug.h \
@@ -779,9 +784,9 @@ ___gameloop.o : \
   /usr/local/include/SDL2/SDL_image.h /usr/local/include/SDL2/SDL_ttf.h \
   chapter.h updategroup.h render.h roundcollider.h
 	@echo "clang++ ./gameloop.cc"
-	@${CXX} -c ./gameloop.cc -o ___gameloop.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ./gameloop.cc -o objs/___gameloop.o ${FLAGS} ${PREFLAGS}
 
-___main.o : \
+objs/___main.o : \
  main.cc demo.h ../src/all.h ../src/actor.h ../src/object.h \
   ../src/config.h ../src/common/pp.h ../src/common/base.h \
   ../src/common/stdincl.h ../src/common/ifdebug.h \
@@ -907,11 +912,11 @@ ___main.o : \
   /usr/local/include/SDL2/SDL_timer.h \
   /usr/local/include/SDL2/SDL_version.h \
   /usr/local/include/SDL2/SDL_image.h /usr/local/include/SDL2/SDL_ttf.h \
-  textures.h gameloop.h chapter.h
+  sdlutils.h gameloop.h chapter.h
 	@echo "clang++ ./main.cc"
-	@${CXX} -c ./main.cc -o ___main.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ./main.cc -o objs/___main.o ${FLAGS} ${PREFLAGS}
 
-___render.o : \
+objs/___render.o : \
  render.cc render.h demo.h ../src/all.h ../src/actor.h \
   ../src/object.h ../src/config.h ../src/common/pp.h \
   ../src/common/base.h ../src/common/stdincl.h ../src/common/ifdebug.h \
@@ -1038,9 +1043,139 @@ ___render.o : \
   /usr/local/include/SDL2/SDL_version.h \
   /usr/local/include/SDL2/SDL_image.h /usr/local/include/SDL2/SDL_ttf.h
 	@echo "clang++ ./render.cc"
-	@${CXX} -c ./render.cc -o ___render.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ./render.cc -o objs/___render.o ${FLAGS} ${PREFLAGS}
 
-___spawn.o : \
+objs/___sdlutils.o : \
+ sdlutils.cc sdlutils.h demo.h ../src/all.h ../src/actor.h \
+  ../src/object.h ../src/config.h ../src/common/pp.h \
+  ../src/common/base.h ../src/common/stdincl.h ../src/common/ifdebug.h \
+  ../src/common/copyctrl.h ../src/fwd.h /usr/local/include/glm/glm.hpp \
+  /usr/local/include/glm/detail/_fixes.hpp \
+  /usr/local/include/glm/fwd.hpp \
+  /usr/local/include/glm/detail/type_int.hpp \
+  /usr/local/include/glm/detail/setup.hpp \
+  /usr/local/include/glm/detail/type_float.hpp \
+  /usr/local/include/glm/detail/type_vec.hpp \
+  /usr/local/include/glm/detail/precision.hpp \
+  /usr/local/include/glm/detail/type_mat.hpp \
+  /usr/local/include/glm/vec2.hpp \
+  /usr/local/include/glm/detail/type_vec2.hpp \
+  /usr/local/include/glm/detail/type_vec2.inl \
+  /usr/local/include/glm/vec3.hpp \
+  /usr/local/include/glm/detail/type_vec3.hpp \
+  /usr/local/include/glm/detail/type_vec3.inl \
+  /usr/local/include/glm/vec4.hpp \
+  /usr/local/include/glm/detail/type_vec4.hpp \
+  /usr/local/include/glm/detail/type_vec4.inl \
+  /usr/local/include/glm/mat2x2.hpp \
+  /usr/local/include/glm/detail/type_mat2x2.hpp \
+  /usr/local/include/glm/detail/type_mat2x2.inl \
+  /usr/local/include/glm/mat2x3.hpp \
+  /usr/local/include/glm/detail/type_mat2x3.hpp \
+  /usr/local/include/glm/detail/type_mat2x3.inl \
+  /usr/local/include/glm/mat2x4.hpp \
+  /usr/local/include/glm/detail/type_mat2x4.hpp \
+  /usr/local/include/glm/detail/type_mat2x4.inl \
+  /usr/local/include/glm/mat3x2.hpp \
+  /usr/local/include/glm/detail/type_mat3x2.hpp \
+  /usr/local/include/glm/detail/type_mat3x2.inl \
+  /usr/local/include/glm/mat3x3.hpp \
+  /usr/local/include/glm/detail/type_mat3x3.hpp \
+  /usr/local/include/glm/detail/type_mat3x3.inl \
+  /usr/local/include/glm/mat3x4.hpp \
+  /usr/local/include/glm/detail/type_mat3x4.hpp \
+  /usr/local/include/glm/detail/type_mat3x4.inl \
+  /usr/local/include/glm/mat4x2.hpp \
+  /usr/local/include/glm/detail/type_mat4x2.hpp \
+  /usr/local/include/glm/detail/type_mat4x2.inl \
+  /usr/local/include/glm/mat4x3.hpp \
+  /usr/local/include/glm/detail/type_mat4x3.hpp \
+  /usr/local/include/glm/detail/type_mat4x3.inl \
+  /usr/local/include/glm/mat4x4.hpp \
+  /usr/local/include/glm/detail/type_mat4x4.hpp \
+  /usr/local/include/glm/detail/type_mat4x4.inl \
+  /usr/local/include/glm/trigonometric.hpp \
+  /usr/local/include/glm/detail/func_trigonometric.hpp \
+  /usr/local/include/glm/detail/func_trigonometric.inl \
+  /usr/local/include/glm/detail/_vectorize.hpp \
+  /usr/local/include/glm/detail/type_vec1.hpp \
+  /usr/local/include/glm/detail/type_vec1.inl \
+  /usr/local/include/glm/exponential.hpp \
+  /usr/local/include/glm/detail/func_exponential.hpp \
+  /usr/local/include/glm/detail/func_exponential.inl \
+  /usr/local/include/glm/detail/func_vector_relational.hpp \
+  /usr/local/include/glm/detail/func_vector_relational.inl \
+  /usr/local/include/glm/common.hpp \
+  /usr/local/include/glm/detail/func_common.hpp \
+  /usr/local/include/glm/detail/func_common.inl \
+  /usr/local/include/glm/packing.hpp \
+  /usr/local/include/glm/detail/func_packing.hpp \
+  /usr/local/include/glm/detail/func_packing.inl \
+  /usr/local/include/glm/detail/type_half.hpp \
+  /usr/local/include/glm/detail/type_half.inl \
+  /usr/local/include/glm/geometric.hpp \
+  /usr/local/include/glm/detail/func_geometric.hpp \
+  /usr/local/include/glm/detail/func_geometric.inl \
+  /usr/local/include/glm/matrix.hpp \
+  /usr/local/include/glm/detail/func_matrix.hpp \
+  /usr/local/include/glm/detail/func_matrix.inl \
+  /usr/local/include/glm/vector_relational.hpp \
+  /usr/local/include/glm/integer.hpp \
+  /usr/local/include/glm/detail/func_integer.hpp \
+  /usr/local/include/glm/detail/func_integer.inl ../src/variant.h \
+  ../src/property.h ../src/updatedetails.h ../src/collider.h \
+  ../src/support/collisionmodel.h ../src/support/../util/math.h \
+  ../src/drawdetails.h ../src/entity.h ../src/particle.h ../src/task.h \
+  ../src/render.h ../src/support/animationcurve.h \
+  ../src/support/bootstrap.h ../src/support/init.h \
+  ../src/tasks/compose.h ../src/tasks/parameterized.h \
+  /usr/local/include/SDL2/SDL.h /usr/local/include/SDL2/SDL_main.h \
+  /usr/local/include/SDL2/SDL_stdinc.h \
+  /usr/local/include/SDL2/SDL_config.h \
+  /usr/local/include/SDL2/SDL_platform.h \
+  /usr/local/include/SDL2/begin_code.h \
+  /usr/local/include/SDL2/close_code.h \
+  /usr/local/include/SDL2/SDL_assert.h \
+  /usr/local/include/SDL2/SDL_atomic.h \
+  /usr/local/include/SDL2/SDL_audio.h \
+  /usr/local/include/SDL2/SDL_error.h \
+  /usr/local/include/SDL2/SDL_endian.h \
+  /usr/local/include/SDL2/SDL_mutex.h \
+  /usr/local/include/SDL2/SDL_thread.h \
+  /usr/local/include/SDL2/SDL_rwops.h \
+  /usr/local/include/SDL2/SDL_clipboard.h \
+  /usr/local/include/SDL2/SDL_cpuinfo.h \
+  /usr/local/include/SDL2/SDL_events.h \
+  /usr/local/include/SDL2/SDL_video.h \
+  /usr/local/include/SDL2/SDL_pixels.h \
+  /usr/local/include/SDL2/SDL_rect.h \
+  /usr/local/include/SDL2/SDL_surface.h \
+  /usr/local/include/SDL2/SDL_blendmode.h \
+  /usr/local/include/SDL2/SDL_keyboard.h \
+  /usr/local/include/SDL2/SDL_keycode.h \
+  /usr/local/include/SDL2/SDL_scancode.h \
+  /usr/local/include/SDL2/SDL_mouse.h \
+  /usr/local/include/SDL2/SDL_joystick.h \
+  /usr/local/include/SDL2/SDL_gamecontroller.h \
+  /usr/local/include/SDL2/SDL_quit.h \
+  /usr/local/include/SDL2/SDL_gesture.h \
+  /usr/local/include/SDL2/SDL_touch.h \
+  /usr/local/include/SDL2/SDL_filesystem.h \
+  /usr/local/include/SDL2/SDL_haptic.h \
+  /usr/local/include/SDL2/SDL_hints.h \
+  /usr/local/include/SDL2/SDL_loadso.h /usr/local/include/SDL2/SDL_log.h \
+  /usr/local/include/SDL2/SDL_messagebox.h \
+  /usr/local/include/SDL2/SDL_power.h \
+  /usr/local/include/SDL2/SDL_render.h \
+  /usr/local/include/SDL2/SDL_system.h \
+  /usr/local/include/SDL2/SDL_timer.h \
+  /usr/local/include/SDL2/SDL_version.h \
+  /usr/local/include/SDL2/SDL_image.h /usr/local/include/SDL2/SDL_ttf.h \
+  textures.h
+	@echo "clang++ ./sdlutils.cc"
+	@${CXX} -c ./sdlutils.cc -o objs/___sdlutils.o ${FLAGS} ${PREFLAGS}
+
+objs/___spawn.o : \
  spawn.cc spawn.h demo.h ../src/all.h ../src/actor.h \
   ../src/object.h ../src/config.h ../src/common/pp.h \
   ../src/common/base.h ../src/common/stdincl.h ../src/common/ifdebug.h \
@@ -1168,9 +1303,9 @@ ___spawn.o : \
   /usr/local/include/SDL2/SDL_image.h /usr/local/include/SDL2/SDL_ttf.h \
   bullet.h render.h roundcollider.h textures.h updategroup.h
 	@echo "clang++ ./spawn.cc"
-	@${CXX} -c ./spawn.cc -o ___spawn.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ./spawn.cc -o objs/___spawn.o ${FLAGS} ${PREFLAGS}
 
-___textures.o : \
+objs/___textures.o : \
  textures.cc textures.h demo.h ../src/all.h ../src/actor.h \
   ../src/object.h ../src/config.h ../src/common/pp.h \
   ../src/common/base.h ../src/common/stdincl.h ../src/common/ifdebug.h \
@@ -1297,9 +1432,9 @@ ___textures.o : \
   /usr/local/include/SDL2/SDL_version.h \
   /usr/local/include/SDL2/SDL_image.h /usr/local/include/SDL2/SDL_ttf.h
 	@echo "clang++ ./textures.cc"
-	@${CXX} -c ./textures.cc -o ___textures.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ./textures.cc -o objs/___textures.o ${FLAGS} ${PREFLAGS}
 
-___updategroup.o : \
+objs/___updategroup.o : \
  updategroup.cc demo.h ../src/all.h ../src/actor.h \
   ../src/object.h ../src/config.h ../src/common/pp.h \
   ../src/common/base.h ../src/common/stdincl.h ../src/common/ifdebug.h \
@@ -1427,9 +1562,9 @@ ___updategroup.o : \
   /usr/local/include/SDL2/SDL_image.h /usr/local/include/SDL2/SDL_ttf.h \
   updategroup.h render.h
 	@echo "clang++ ./updategroup.cc"
-	@${CXX} -c ./updategroup.cc -o ___updategroup.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ./updategroup.cc -o objs/___updategroup.o ${FLAGS} ${PREFLAGS}
 
-__chapters__c1.o : \
+objs/__chapters__c1.o : \
  chapters/c1.cc chapters/common.h chapters/../chapter.h demo.h \
   ../src/all.h ../src/actor.h ../src/object.h ../src/config.h \
   ../src/common/pp.h ../src/common/base.h ../src/common/stdincl.h \
@@ -1558,8 +1693,8 @@ __chapters__c1.o : \
   /usr/local/include/SDL2/SDL_image.h /usr/local/include/SDL2/SDL_ttf.h \
   chapters/../gameloop.h chapters/../spawn.h chapters/../bullet.h \
   chapters/../render.h chapters/../textures.h \
-  chapters/../roundcollider.h
+  chapters/../roundcollider.h chapters/../updategroup.h
 	@echo "clang++ ./chapters/c1.cc"
-	@${CXX} -c ./chapters/c1.cc -o __chapters__c1.o ${FLAGS} ${PREFLAGS}
+	@${CXX} -c ./chapters/c1.cc -o objs/__chapters__c1.o ${FLAGS} ${PREFLAGS}
 
 

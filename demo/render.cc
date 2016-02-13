@@ -20,6 +20,11 @@ void SDL_Render::draw(const Draw_Details &dd)
 //         target.x, target.y,
 //         pos.x, pos.y);
 
+#ifdef XI_RENDER_RECT
+  ::SDL_SetRenderDrawColor(renderer, 200, 0, 0, 0);
+  ::SDL_RenderDrawRect(renderer, &target);
+
+#else
   ::SDL_RenderCopyEx(renderer,
                      texture,
                      /* todo */ nullptr,
@@ -27,9 +32,7 @@ void SDL_Render::draw(const Draw_Details &dd)
                      /* todo */ /* :angle: */ 0,
                      /* todo */ /* :center: / SDL_Point */ nullptr,
                      /* todo */ ::SDL_FLIP_NONE);
-
-//  ::SDL_SetRenderDrawColor(renderer, 200, 0, 0, 0);
-//  ::SDL_RenderDrawRect(renderer, &target);
+#endif
 }
 
 void SDL_Render::update_logic(const Update_Details &ud)

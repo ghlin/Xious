@@ -116,7 +116,8 @@ vec_t ease_out(float_t time_elpased,
                float_t duration,
                float_t change_value)
 {
-  return T::update(duration - time_elpased, duration, change_value);
+  auto rei = T::update(duration - time_elpased, duration, change_value);
+  return { change_value - rei.x, rei.y };
 }
 
 template <class T>
@@ -126,7 +127,7 @@ vec_t ease_in_out(float_t time_elpased,
                   float_t change_value)
 {
   if (time_elpased > duration / 2)
-    return ease_out<T>(time_elpased - duration, duration / 2, change_value);
+    return ease_out<T>(time_elpased - duration / 2, duration / 2, change_value);
   else
     return ease_in<T>(time_elpased, duration / 2, change_value);
 }
