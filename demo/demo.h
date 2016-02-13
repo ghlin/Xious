@@ -23,6 +23,7 @@ namespace Xi {
 
 class Game_Loop;
 class Update_Group;
+class Player;
 
 } // namespace Xi
 

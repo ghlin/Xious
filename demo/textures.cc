@@ -45,6 +45,7 @@ void load_textures(::SDL_Renderer *renderer)
 
   g_textures[TID_Round_Blue_Bullet]  = load_texture(renderer, texture_prefix + "DpBlueBulletC.png");
   g_textures[TID_Round_Green_Bullet] = load_texture(renderer, texture_prefix + "PsBulletC.png");
+  g_textures[TID_Player]             = load_texture(renderer, texture_prefix + "DpEnemyC.png");
 
   auto font_path = texture_prefix + "OpenSans-Regular.ttf";
 

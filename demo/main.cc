@@ -3,8 +3,7 @@
 #include "gameloop.h"
 #include "textures.h"
 #include "updategroup.h"
-
-
+#include "player.h"
 
 int main(int argc, const char **argv)
 {
@@ -25,15 +24,20 @@ int main(int argc, const char **argv)
   float_t            total_render_time  = 0.0f;
   float_t            total_elpased_time = 0.0f;
   float_t            play_speed         = 1.0f;
+  float_t            move_speed         = 150.0f;
   int                chapter_idx        = 0;
 
   auto              *renderer           = scope.renderer;
   auto              *window             = scope.window;
 
+
+
   ::SDL_Rect   scene_rect = { G_SCENE_X, G_SCENE_Y, G_SCENE_W, G_SCENE_H };
   ::SDL_Event  e;
 
   auto game_loop = Game_Loop(renderer);
+  Player *player = game_loop.player.get();
+
   do
   {
     auto before_update                = std::chrono::high_resolution_clock::now();
@@ -74,6 +78,7 @@ int main(int argc, const char **argv)
       std::sprintf(diag,
                    "[%s] (of %zu)\n"
                    "ply speed : %6f.\n"
+                   "mov speed : %6f.\n"
                    "elpased   : %6f.\n"
                    "avg elp   : %6f.\n"
                    "update    : %6f.\n"
@@ -91,6 +96,7 @@ int main(int argc, const char **argv)
                    game_loop.chapter->title.c_str(),
                    get_chapters().size(),
                    play_speed,
+                   move_speed,
                    diff.count(),
                    (total_elpased_time += diff.count()) / ticks,
                    update_time,
@@ -120,18 +126,17 @@ int main(int argc, const char **argv)
         Xi_log("%s key down.", ::SDL_GetKeyName(e.key.keysym.sym));
         switch (e.key.keysym.sym)
         {
-        case SDLK_a: game_loop.switch_chapter(chapter_idx--);
-          break;
+        case SDLK_a: game_loop.switch_chapter(chapter_idx--); break;
+        case SDLK_s: game_loop.switch_chapter(chapter_idx++); break;
+        case SDLK_MINUS:  play_speed *= 2; break;
+        case SDLK_EQUALS: play_speed /= 2; break;
+        case SDLK_q:      move_speed  *= 1.3; break;
+        case SDLK_w:      move_speed  /= 1.3; break;
 
-        case SDLK_s: game_loop.switch_chapter(chapter_idx++);
-          break;
-
-        case SDLK_EQUALS: play_speed /= 2;
-          break;
-
-        case SDLK_MINUS: play_speed *= 2;
-          break;
-
+        case SDLK_LEFT:   player->input = { -move_speed, 0 }; break;
+        case SDLK_RIGHT:  player->input = {  move_speed, 0 }; break;
+        case SDLK_UP:     player->input = { 0,  move_speed }; break;
+        case SDLK_DOWN:   player->input = { 0, -move_speed }; break;
         default:
           ;
         }

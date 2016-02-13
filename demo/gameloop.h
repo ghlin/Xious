@@ -16,7 +16,7 @@ public:
   Draw_Details dd = { };
 
   Handle<Update_Group> group;
-  Handle<Entity>       player;
+  Handle<Player>       player;
   Handle<Chapter>      chapter;
 
   inline void change_chapter(Handle<Chapter> chapter)

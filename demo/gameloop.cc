@@ -3,12 +3,13 @@
 #include "render.h"
 #include "roundcollider.h"
 #include "chapter.h"
+#include "player.h"
 
 namespace Xi {
 
 Game_Loop::Game_Loop(::SDL_Renderer *renderer)
   : dd { }
-  , player(new Entity)
+  , player(new Player)
   , group(new Update_Group)
 {
   dd.renderer = static_cast<SDL_Renderer *>(renderer);
@@ -34,7 +35,7 @@ void Game_Loop::update(float_t dt)
   chapter->update(dd);
   group->update(dd);
 
-  // player->update(dd);
+  player->update(dd);
 }
 
 void Game_Loop::switch_chapter(int off)
@@ -51,6 +52,9 @@ void Game_Loop::switch_chapter(int off)
 void Game_Loop::render()
 {
   group->draw(dd);
+
+  dd.focus = player.get();
+  player->render->draw(dd);
 }
 
 } // namespace Xi
