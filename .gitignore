@@ -1,6 +1,7 @@
 *.o
 *.out
-demo/app
+app
+Makefile
 test/
 *.swp
 *.swo
