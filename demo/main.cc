@@ -40,11 +40,13 @@ int main(int argc, const char **argv)
 
   do
   {
+
     auto before_update                = std::chrono::high_resolution_clock::now();
     std::chrono::duration<float> diff = before_update - last_update_time;
 
     if (diff.count() >= fps_delta_time - 0.001f)
     {
+      last_update_time = before_update;
       ++ticks;
 
       ::SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -92,6 +94,7 @@ int main(int argc, const char **argv)
                    "avg rnd   : %6f.\n"
                    "ticks     : %llu.\n"
                    "FPS       : %6f.\n"
+                   "FPS avg   : %6f.\n"
                    "objs      : %zu.\n",
                    game_loop.chapter->title.c_str(),
                    get_chapters().size(),
@@ -109,21 +112,19 @@ int main(int argc, const char **argv)
                    total_update_time / ticks,
                    total_render_time / ticks,
                    ticks,
+                   1 / diff.count(),
                    ticks / total_time,
                    game_loop.group->entities_count());
 
       render_text(renderer, G_SCENE_W + 20, 10 + 10, diag);
 
       ::SDL_RenderPresent(renderer);
-
-      last_update_time = std::chrono::high_resolution_clock::now();
     }
 
     while (::SDL_PollEvent(&e) && e.type != SDL_QUIT)
     {
       if (e.type == SDL_KEYDOWN)
       {
-        Xi_log("%s key down.", ::SDL_GetKeyName(e.key.keysym.sym));
         switch (e.key.keysym.sym)
         {
         case SDLK_a: game_loop.switch_chapter(chapter_idx--); break;
