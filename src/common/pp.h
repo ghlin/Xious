@@ -122,7 +122,7 @@
 #define attr_init_default       attr_init(XI_INIT_PRIO_DEFAULT)
 #define attr_fini_default       attr_fini(XI_INIT_PRIO_DEFAULT)
 
-#define XI_INIT_PRIO_INTERNAL   (100000)
+#define XI_INIT_PRIO_INTERNAL   (50000)
 #define XI_INIT_PRIO_DEFAULT    (XI_INIT_PRIO_INTERNAL + 1000 + 1)
 
 // }}}

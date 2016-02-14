@@ -8,7 +8,7 @@ namespace Xi {
 class Scaled_Value : public Value_Provider
 {
   using Super = Value_Provider;
-protected:
+private:
   Handle<Value_Provider>  original;
   float_t                 scale_rate;
 

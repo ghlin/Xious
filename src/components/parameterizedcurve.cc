@@ -25,9 +25,9 @@ void Parameterized_Curve::update_logic(const Update_Details &ud)
 
   update_time_elpased = next_time_elpased;
 
-  auto res =  update_parameter.update_function(update_time_elpased,
-                                               update_parameter.duration,
-                                               update_parameter.change_value);
+  auto res = update_parameter.update_function(update_time_elpased,
+                                              update_parameter.duration,
+                                              update_parameter.change_value);
 
   position_value = res.x;
   position_value=  res.y;

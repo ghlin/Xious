@@ -9,7 +9,7 @@ class Composed_Task : public Task
 {
   using Super = Task;
 
-protected:
+private:
   std::vector<Handle<Task>>     tasks;
 
   XI_PROP_EXPORT( (Tasks, tasks)
@@ -18,6 +18,8 @@ protected:
                 );
 
 public:
+  Composed_Task() { }
+
   template <class ...Args>
   Composed_Task(Args &&...args)
     : tasks(std::forward<Args>(args)...)
@@ -32,6 +34,13 @@ public:
 protected:
   virtual void update_logic(const Update_Details &ud) override;
 };
+
+template <class ...Tasks>
+static inline
+auto compose(Tasks &&...tasks)
+{
+  return make_handle<Composed_Task>(std::forward<Tasks>(tasks)...);
+}
 
 } // namespace Xi
 

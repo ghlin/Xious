@@ -33,11 +33,27 @@ attr_export void    bootstrap_finalize();
 
 #define XI_BOOTSTRAP_SCOPE()                              \
   namespace {                                             \
-  namespace XI_JOIN(bootstrap_scope_, __COUNTER__) {      \
+  namespace XI_JOIN(bootstrap_scope_, __LINE__) {         \
   static attr_ctrl(spec_visisbility_hidden,               \
                    constructor(XI_INIT_PRIO_BOOTSTRAP))   \
   void bootstrap(); } }                                   \
-  void XI_JOIN(bootstrap_scope_, XI_MINUS1(__COUNTER__))::bootstrap()
+  void XI_JOIN(bootstrap_scope_, __LINE__)::bootstrap()
+
+#define XI_BOOTSTRAP_ON(path, deps, ttype)                     \
+  namespace {                                                  \
+  namespace XI_JOIN(bootstrap_add_task_, __LINE__) {           \
+  static void bootstrap_task(const Str_List &,                 \
+                             const Str &);                     \
+  } }                                                          \
+  XI_BOOTSTRAP_SCOPE()                                         \
+  {                                                            \
+    ::Xi::init::bootstrap_add_task(                            \
+      path, deps,                                              \
+      XI_JOIN(bootstrap_add_task_, __LINE__)::bootstrap_task); \
+  }                                                            \
+  void XI_JOIN(bootstrap_add_task_, __LINE__)                  \
+    ::bootstrap_task(const Str_List &$args, const Str &$path)
+
 
 #endif // end of include guard: BOOTSTRAP_H_INCLUDED_79FKHBZU
 

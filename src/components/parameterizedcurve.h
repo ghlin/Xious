@@ -2,6 +2,7 @@
 #define PARAMETERIZEDCURVE_H_INCLUDED_NLHOAIF2
 
 #include "../valueprovider.h"
+#include "../support/animationcurve.h"
 
 namespace Xi {
 
@@ -21,18 +22,72 @@ enum Update_Complete_Policy
   UCP_Reset,       ///< 将elpased置0, 重新开始.
 };
 
+/**
+ * 曲线参数.
+ */
 struct Update_Parameter
 {
-  Update_Complete_Policy update_complete_policy;
   Update_Function        update_function;
   float_t                duration,
                          change_value;
+  Update_Complete_Policy update_complete_policy;
 };
+
+
+static inline
+Update_Parameter make_update_parameter(Update_Function        update_function,
+                                       float_t                duration,
+                                       float_t                change_value,
+                                       Update_Complete_Policy update_complete_policy)
+{
+  return { update_function, duration, change_value, update_complete_policy };
+}
+
+static inline
+Update_Parameter make_update_parameter(curve::Curve_Type               curve_type,
+                                       curve::Curve_Change_Type        curve_change_type,
+                                       float_t                         duration,
+                                       float_t                         change_value,
+                                       Update_Complete_Policy          update_complete_policy)
+{
+  return make_update_parameter(curve::get_curve(curve_type, curve_change_type),
+                               duration,
+                               change_value,
+                               update_complete_policy);
+}
+
+static inline
+Update_Parameter scale(Update_Parameter up, float_t scale_rate)
+{
+  return make_update_parameter(up.update_function,
+                               up.duration,
+                               up.change_value * scale_rate,
+                               up.update_complete_policy);
+}
+
+/**
+ * x方向分解.
+ */
+static inline
+Update_Parameter resolve_x_part(Update_Parameter up, float_t angle)
+{
+  return scale(up, std::cos(angle));
+}
+
+/**
+ * y方向分解.
+ */
+static inline
+Update_Parameter resolve_y_part(Update_Parameter up, float_t angle)
+{
+  return scale(up, std::sin(angle));
+}
+
 
 class Parameterized_Curve : public Value_Provider
 {
   using Super = Value_Provider;
-protected:
+private:
   Update_Parameter update_parameter;
   float_t          update_time_elpased;
   float_t          position_value,
@@ -63,7 +118,7 @@ public:
     return velocity_value;
   }
 protected:
-  virtual void update_logic(const Update_Details &ud) override;
+  virtual void update_logic(const Update_Details &ud) override final;
 public:
   XI_COPY_CLONE(Parameterized_Curve)
 };

@@ -17,9 +17,13 @@
 #include "entity.h"
 #include "valueprovider.h"
 
-// actors.
-#include "actors/parameterizedcurve.h"
-#include "actors/resolution.h"
+// components.
+#include "components/parameterizedcurve.h"
+#include "components/resolution.h"
+#include "components/compose.h"
+#include "components/motionxy.h"
+#include "components/scheduler.h"
+#include "components/rotate.h"
 
 // support.
 #include "support/animationcurve.h"
@@ -27,10 +31,6 @@
 #include "support/collisionmodel.h"
 #include "support/init.h"
 
-// tasks.
-#include "tasks/compose.h"
-#include "tasks/motionxy.h"
-#include "tasks/rotate.h"
 
 // misc.
 #include "variant.h"

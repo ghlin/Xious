@@ -393,6 +393,19 @@ struct RAII_Helper_Candy
 #define u_defer           ::Xi::details::RAII_Helper_Candy() + []
 #define u_defer_with(...) ::Xi::details::RAII_Helper_Candy() + [__VA_ARGS__]
 
+
+static inline
+bool u_check_bit(uint32_t pattern, uint32_t mask)
+{
+  return (pattern & mask) == mask;
+}
+
+static inline
+bool u_check_bit(uint64_t pattern, uint64_t mask)
+{
+  return (pattern & mask) == mask;
+}
+
 // }}}
 
 // }}}

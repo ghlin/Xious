@@ -3,14 +3,15 @@
 
 #include "../task.h"
 #include "../valueprovider.h"
-#include "../actors/resolution.h"
+#include "resolution.h"
+
 
 namespace Xi {
 
 class Motion_XY : public Task
 {
   using Super = Task;
-protected:
+private:
   Handle<Value_Provider> x_motion;
   Handle<Value_Provider> y_motion;
 
@@ -32,6 +33,7 @@ public:
     : x_motion(resolve_x_part(original, angle))
     , y_motion(resolve_y_part(original, angle))
   { }
+
 protected:
   virtual void update_logic(const Update_Details &ud) override final
   {

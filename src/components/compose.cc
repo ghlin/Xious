@@ -10,6 +10,7 @@ void Composed_Task::update_logic(const Update_Details &ud)
   for (auto &&sub : tasks)
   {
     sub->update(ud);
+
     position += sub->get_position();
     velocity += sub->get_velocity();
   }
