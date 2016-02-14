@@ -9,10 +9,10 @@ namespace Xi {
 enum Collision_Model_Type
 {
   CM_Special,
-  CM_Line,
-  CM_Segment,
-  CM_Box,
-  CM_Round,
+  CM_Line,     ///< 直线 (两端延伸)
+  CM_Segment,  ///< 线段
+  CM_Box,      ///< 长方形 (不考虑旋转)
+  CM_Round,    ///< 圆形
 };
 
 struct Box_Model
@@ -131,6 +131,9 @@ bool is_colliding(const vec_t       &pos_A,
 
   if (math::is_inside(pos_B, pos_A, A.radius))
     return true;
+
+  // FIXME(ghlin) : 算法有误 2016-02-14 17:56:56
+  //  应该计算 长方形中点与圆中点连线 与 长方形边交点 是否位于圆内
 
   auto care = glm::normalize(pos_B - pos_A) * A.radius + pos_A;
 

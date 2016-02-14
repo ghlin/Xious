@@ -25,14 +25,21 @@ class Prototype : public Object
 {
 public:
   virtual Handle<Prototype> clone() const;
+
+  virtual Handle<Prototype> share() const
+  {
+    return clone();
+  }
 };
 
-#define XI_SHARE_CLONE(Type)                          \
-  virtual Handle<Prototype> clone() const override    \
-  {                                                   \
-    return std::static_pointer_cast<Prototype>(       \
-      const_cast<Object *>(this)->share_from_this()); \
+#define XI_STATELESS(Type)                                     \
+  virtual Handle<Prototype> share() const override final;      \
+  {                                                            \
+    static_assert(std::is_final<Type>::value,                  \
+                  "A Stateless object must be Final.");        \
+    return handle_cast<Prototype>(const_cast<Type &>(*this));  \
   }
+
 
 #define XI_COPY_CLONE(Type)                           \
   virtual Handle<Prototype> clone() const override    \

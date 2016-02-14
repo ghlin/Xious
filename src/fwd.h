@@ -3,8 +3,8 @@
 
 namespace Xi {
 
+class Var;
 class Object;
-class Particle;
 class Entity;
 class Actor;
 class Chapter;

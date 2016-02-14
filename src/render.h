@@ -9,7 +9,7 @@ class Render : public Actor
 {
   using Super = Actor;
 public:
-  virtual void draw(const Draw_Details &dd) = 0;
+  virtual void draw(const Update_Details &ud) = 0;
 };
 
 } // namespace Xi

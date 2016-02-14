@@ -88,13 +88,23 @@ bool is_inside(const vec_t &P,
 }
 
 static inline
-float side(const vec_t &point,
-           const vec_t &A1, const vec_t &A2)
+float_t side(const vec_t &point,
+             const vec_t &A1, const vec_t &A2)
 {
   return cross_product(point - A1, point - A2);
 }
 
 
+static inline
+float_t angle(const vec_t &v)
+{
+  auto tangent = v.y / v.x;
+
+  if (std::isnan(tangent))
+    return v.y > 0 ? M_PI / 2 : -M_PI / 2;
+
+  return std::atan(tangent) + (v.x > 0 ? 0 : M_PI);
+}
 
 } // namespace math
 

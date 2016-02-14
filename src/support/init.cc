@@ -49,8 +49,8 @@ struct Node
     , parent(nullptr)
     , depth(0)
     , name(name)
-    , path(name)
     , deps(deps.cbegin(), deps.cend())
+    , path(name)
     , node_status(Waiting)
     , activated(activated)
   { }
@@ -66,7 +66,7 @@ struct Node
     save->root   = root;
     save->depth  = depth + 1;
 
-    if (path.empty()) // root -> entry
+    if (this == root) // root -> entry
       save->path   = save->name;
     else
       save->path   = path + "." + save->name;
@@ -219,8 +219,8 @@ struct Node
     }
 
     Xi_debug_log(" %s :: %s (needs %zu:%s)",
-                 path.empty() ? "<root>" : path,
-                 name.empty() ? "<root>" : name,
+                 this == root ? "<root>" : path,
+                 this == root ? "<root>" : name,
                  deps.size(),
                  u_join(deps, ", "));
 

@@ -1,62 +1,73 @@
 #ifndef ENTITY_H_INCLUDED_QS1YHTJM
 #define ENTITY_H_INCLUDED_QS1YHTJM
 
-#include "particle.h"
+#include "task.h"
 
 namespace Xi {
 
-enum Entity_Status
-{
-  ES_Spawning,     ///< 正在创生
-  ES_Dying,        ///< 正在消灭(如超出屏幕范围)
-  ES_Normal,       ///< 参与正常更新
-  ES_Destroying,   ///< 正在消灭(参与碰撞导致的消灭)
-  ES_To_Remove,    ///< 指示移除
-};
 
-class Entity : public Particle
+class Entity : public Actor
 {
-  using Super = Particle;
+  using Super = Actor;
 public:
+  enum Update_Status : uint32_t
+  {
+    US_Normal,       ///< 参与正常更新
+    US_To_Remove,    ///< 指示移除
+    US_Skip,         ///< 不参与更新
+  };
+
   Handle<Collider> collider;
   Handle<Render>   render;
-
-  uint32_t         layer,
-                   state,
-                   update_group,
-                   collision_group;
+  Handle<Task>     task;
+  Update_Status    update_status = US_Normal;
 
   XI_PROP_EXPORT( (Collider, collider)
-                , (Layer, layer)
-                , (State, state)
-                , (Update_Group, update_group)
-                , (Collision_Group, collision_group)
                 , (Render, render)
+                , (Task, task)
+                , (Update_Status, update_status)
                 );
 public:
   Entity() { }
 
   Entity(Handle<Collider> collider,
          Handle<Render>   render,
-         uint32_t         layer,
-         uint32_t         update_group,
-         uint32_t         collision_group)
+         Handle<Task>     task,
+         Update_Status    update_status = Update_Status::US_Normal)
     : collider(std::move(collider))
     , render(std::move(render))
-    , layer(layer)
-    , state(ES_Spawning)
-    , update_group(update_group)
-    , collision_group(collision_group)
+    , task(std::move(task))
+    , update_status(update_status)
   { }
+
+  virtual void do_collision_test(const Update_Details &ud) = 0;
+
+  virtual void do_render(const Update_Details &ud) = 0;
+
+  const Task *get_task() const
+  {
+    return task.get();
+  }
 
   const Collider *get_collider() const
   {
     return collider.get();
   }
 
-  const Render  *get_render() const
+  const Render *get_render() const
   {
     return render.get();
+  }
+protected:
+  virtual void update_logic(const Update_Details &ud) override
+  {
+    Xi_debug_check(task);
+    Xi_debug_check(collider);
+    Xi_debug_check(render);
+
+    task->update(ud);
+    collider->update(ud);
+    render->update(ud);
   }
 };
 

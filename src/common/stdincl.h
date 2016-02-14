@@ -11,6 +11,8 @@
 #include <initializer_list>
 #include <utility>           // forward / move
 
+#include <cmath>             // for M_PI / sin / cos ...
+
 #include <algorithm>
 #include <iterator>
 

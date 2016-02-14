@@ -7,6 +7,7 @@ namespace Xi {
 
 struct Update_Details
 {
+  Instance       *instance;
   frame_t         frame;
   frame_t         delta_frame;
   float_t         time_elpased;
@@ -15,14 +16,6 @@ struct Update_Details
   Entity         *focus;
   Entity         *charactor;
   Chapter        *chapter;
-
-  struct World_Border
-  {
-    float_t       width, height,
-                  ws, hs; // half.
-  };
-
-  World_Border    border;
 };
 
 } // namespace Xi

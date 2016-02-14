@@ -1,52 +1,54 @@
 #ifndef PROPERTY_H_INCLUDED_0CKF8BJA
 #define PROPERTY_H_INCLUDED_0CKF8BJA
 
-#define _XI_PROP_DECL(Key, expr) constexpr static char XI_JOIN(Prop_, Key)[] = XI_STRINGIFY(Key)
+#define _XI_PROP_DECL(key, expr) constexpr static char XI_JOIN(Prop_, key)[] = XI_STRINGIFY(key)
 
-#define _XI_PROP_GET_IMPL_RW(Key, expr)                   \
+#define _XI_PROP_GET_IMPL_RW(key, expr)                   \
   do {                                                    \
-    if ($key == XI_STRINGIFY(Key))                        \
+    if ($key == XI_STRINGIFY(key))                        \
       return Var::of<std::decay_t<decltype(expr)>>(expr); \
   } while (false)
-#define _XI_PROP_GET_IMPL_RO(Key, expr) _XI_PROP_GET_IMPL_RW(Key, expr)
-#define _XI_PROP_GET_IMPL_WO(Key, expr)                           \
+#define _XI_PROP_GET_IMPL_RO(key, expr) _XI_PROP_GET_IMPL_RW(key, expr)
+#define _XI_PROP_GET_IMPL_WO(key, expr)                           \
   do {                                                            \
-    if ($key == XI_STRINGIFY(Key))                                \
-      Xi_die("Property `" XI_STRINGIFY(Key) "' cannot be read."); \
+    if ($key == XI_STRINGIFY(key))                                \
+      Xi_die("Property `" XI_STRINGIFY(key) "' cannot be read."); \
   } while (false)
+#define _XI_PROP_GET_IMPL_SETTER_EXP(key, expr, opt, ext)   \
+  _XI_PROP_GET_IMPL_3(key, expr, opt)
 
-#define _XI_PROP_SET_IMPL_RW(Key, expr)                \
+#define _XI_PROP_SET_IMPL_RW(key, expr)                \
   do {                                                 \
-    if ($key == XI_STRINGIFY(Key))                     \
+    if ($key == XI_STRINGIFY(key))                     \
     {                                                  \
       expr = $val.get<std::decay_t<decltype(expr)>>(); \
       return;                                          \
     }                                                  \
   } while (false)
-#define _XI_PROP_SET_IMPL_SETTER_EXP(Key, expr)        \
-  do {                                                 \
-    if ($key == XI_STRINGIFY(Key))                     \
-    {                                                  \
-      expr;                                            \
-      return;                                          \
-    }                                                  \
+#define _XI_PROP_SET_IMPL_SETTER_EXP(key, expr, opt, ext)   \
+  do {                                                      \
+    if ($key == XI_STRINGIFY(key))                          \
+    {                                                       \
+      expr;                                                 \
+      return;                                               \
+    }                                                       \
   } while (false)
-#define _XI_PROP_SET_IMPL_WO(Key, expr) _XI_PROP_SET_IMPL_RW(Key, expr)
-#define _XI_PROP_SET_IMPL_RO(Key, expr)                              \
+#define _XI_PROP_SET_IMPL_WO(key, expr) _XI_PROP_SET_IMPL_RW(key, expr)
+#define _XI_PROP_SET_IMPL_RO(key, expr)                              \
   do {                                                               \
-    if ($key == XI_STRINGIFY(Key))                                   \
-      Xi_die("Property `" XI_STRINGIFY(Key) "' cannot be written."); \
+    if ($key == XI_STRINGIFY(key))                                   \
+      Xi_die("Property `" XI_STRINGIFY(key) "' cannot be written."); \
   } while (false)
 
 #define _XI_PROP_DECL_HELPER(...) _XI_PROP_DECL(XI_CAR(__VA_ARGS__), XI_CAR(XI_CDR(__VA_ARGS__)))
 
-#define _XI_PROP_GET_IMPL_2(Key, expr)            _XI_PROP_GET_IMPL_RW(Key, expr)
-#define _XI_PROP_GET_IMPL_3(Key, expr, opt)       XI_JOIN(_XI_PROP_GET_IMPL_, opt)(Key, expr)
-#define _XI_PROP_GET_IMPL_4(Key, expr, opt, ext)  _XI_PROP_GET_IMPL_3(Key, expr, opt)
+#define _XI_PROP_GET_IMPL_2(key, expr)              _XI_PROP_GET_IMPL_RW(key, expr)
+#define _XI_PROP_GET_IMPL_3(key, expr, opt)         XI_JOIN(_XI_PROP_GET_IMPL_, opt)(key, expr)
+#define _XI_PROP_GET_IMPL_4(key, expr, opt, ext)    XI_JOIN(_XI_PROP_SET_IMPL_, ext)(key, expr, opt, ext)
 
-#define _XI_PROP_SET_IMPL_2(Key, expr)              _XI_PROP_SET_IMPL_RW(Key, expr)
-#define _XI_PROP_SET_IMPL_3(Key, expr, opt)         XI_JOIN(_XI_PROP_SET_IMPL_, opt)(Key, expr)
-#define _XI_PROP_SET_IMPL_4(Key, expr, opt, ext)    _XI_PROP_SET_IMPL_SETTER_EXP(Key, expr)
+#define _XI_PROP_SET_IMPL_2(key, expr)              _XI_PROP_SET_IMPL_RW(key, expr)
+#define _XI_PROP_SET_IMPL_3(key, expr, opt)         XI_JOIN(_XI_PROP_SET_IMPL_, opt)(key, expr)
+#define _XI_PROP_SET_IMPL_4(key, expr, opt, ext)    XI_JOIN(_XI_PROP_SET_IMPL_, ext)(key, expr, opt, ext)
 
 #define _XI_PROP_GET_IMPL_HELPER(...) XI_JOIN(_XI_PROP_GET_IMPL_, XI_NARGS(__VA_ARGS__))(__VA_ARGS__)
 #define _XI_PROP_SET_IMPL_HELPER(...) XI_JOIN(_XI_PROP_SET_IMPL_, XI_NARGS(__VA_ARGS__))(__VA_ARGS__)

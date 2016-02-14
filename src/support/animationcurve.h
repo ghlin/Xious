@@ -93,10 +93,11 @@ struct Exponential
 {
   static inline
   vec_t update(float_t time_elpased,
-              float_t duration,
-              float_t change_value)
+               float_t duration,
+               float_t change_value)
   {
     // TODO(ghlin) : 指数型缓动 2016-02-07 15:05:49
+    XI_UNUSED(time_elpased, duration, change_value);
     return { };
   }
 };

@@ -18,8 +18,12 @@ class Var
   struct Content_Base
   {
     virtual const std::type_info &get_type_info() const = 0;
+
     virtual void copy_construct_at(void *memo) const = 0;
     virtual void move_construct_at(void *memo)       = 0;
+
+    virtual void copy_assignment(const Content_Base *) = 0;
+    virtual void move_assignment(Content_Base       *) = 0;
 
     virtual ~Content_Base() { }
   };
@@ -31,6 +35,9 @@ class Var
 
     Content(const Content &c) : the_stuff(c.the_stuff)       { }
     Content(Content &&c) : the_stuff(std::move(c.the_stuff)) { }
+
+    Content &operator =(const Content &) = default;
+    Content &operator =(Content      &&) = default;
 
     const T &get_the_stuff() const { return the_stuff; }
           T &get_the_stuff()       { return the_stuff; }
@@ -55,6 +62,16 @@ class Var
     virtual void move_construct_at(void *memo) override final
     {
       new (memo) Content(std::move(*this));
+    }
+
+    virtual void copy_assignment(const Content_Base *rhs) override final
+    {
+      *this = *static_cast<const Content *>(rhs);
+    }
+
+    virtual void move_assignment(Content_Base       *rhs) override final
+    {
+      *this = std::move(*static_cast<Content *>(rhs));
     }
   };
 
@@ -81,10 +98,12 @@ class Var
   template <typename T>
   struct Tag { };
 
+  struct Null_Type { };
+
   template <class T, class ...Args>
   Var(const Tag<T> &, Args &&...args)
   {
-    static_assert(sizeof (Content<T>) <= kMagic_Var_Storage_Size, "Too big for `Var'!");
+    static_assert(sizeof (Content<T>) <= kMagic_Var_Storage_Size, "Danger! Danger!");
 
     new (get_storage()) Content<T>(std::forward<Args>(args)...);
   }
@@ -113,7 +132,7 @@ public:
     var.get_content_base()->move_construct_at(get_storage());
   }
 
-  Var() : Var(Tag<std::nullptr_t>()) { }
+  Var() : Var(Tag<Null_Type>()) { }
 
   inline const std::type_info &get_type_info() const
   {
@@ -156,7 +175,7 @@ public:
 
   inline operator bool() const
   {
-    return is_of_type<std::nullptr_t>();
+    return is_of_type<Null_Type>();
   }
 
   template <typename T>
@@ -186,7 +205,7 @@ public:
     if (this == &rhs)
       return *this;
 
-    // TODO(ghlin) : reminder 2016-02-11 15:46:27
+    get_content_base()->copy_assignment(rhs.get_content_base());
 
     return *this;
   }
@@ -199,9 +218,15 @@ public:
     if (this == &rhs)
       return *this;
 
-    // TODO(ghlin) : reminder 2016-02-11 15:46:27
+    get_content_base()->move_assignment(rhs.get_content_base());
 
     return *this;
+  }
+
+  inline void clear()
+  {
+    this->~Var();
+    new (this) Var();
   }
 };
 
