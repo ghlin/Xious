@@ -25,6 +25,25 @@ struct Disable_Copy
 
 
 
+struct Disable_Move_Assignment
+{
+  Disable_Move_Assignment() = default;
+  Disable_Move_Assignment &operator =(Disable_Move_Assignment &&) = delete;
+};
+
+struct Disable_Move_Construct
+{
+  Disable_Move_Construct() = default;
+  Disable_Move_Construct(Disable_Move_Construct &&) = delete;
+};
+
+struct Disable_Move
+  : Disable_Move_Assignment
+  , Disable_Move_Construct
+{
+  Disable_Move() = default;
+};
+
 } // namespace cc
 } // namespace Xi
 

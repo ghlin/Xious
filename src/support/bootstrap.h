@@ -39,7 +39,7 @@ attr_export void    bootstrap_finalize();
   void bootstrap(); } }                                   \
   void XI_JOIN(bootstrap_scope_, __LINE__)::bootstrap()
 
-#define XI_BOOTSTRAP_ON(path, deps, ttype)                     \
+#define XI_BOOTSTRAP_ON(path, deps)                            \
   namespace {                                                  \
   namespace XI_JOIN(bootstrap_add_task_, __LINE__) {           \
   static void bootstrap_task(const Str_List &,                 \
@@ -51,8 +51,25 @@ attr_export void    bootstrap_finalize();
       path, deps,                                              \
       XI_JOIN(bootstrap_add_task_, __LINE__)::bootstrap_task); \
   }                                                            \
-  void XI_JOIN(bootstrap_add_task_, __LINE__)                  \
-    ::bootstrap_task(const Str_List &$args, const Str &$path)
+  void XI_JOIN(bootstrap_add_task_, __LINE__)::bootstrap_task( \
+    attr_unused const Str_List &$args,                         \
+    attr_unused const Str &$path)
+
+#define XI_BOOTSTRAP_CLEANUP(path, deps)                       \
+  namespace {                                                  \
+  namespace XI_JOIN(bootstrap_add_task_, __LINE__) {           \
+  static void bootstrap_task(const Str_List &,                 \
+                             const Str &);                     \
+  } }                                                          \
+  XI_BOOTSTRAP_SCOPE()                                         \
+  {                                                            \
+    ::Xi::init::bootstrap_add_cleanup(                         \
+      path, deps,                                              \
+      XI_JOIN(bootstrap_add_task_, __LINE__)::bootstrap_task); \
+  }                                                            \
+  void XI_JOIN(bootstrap_add_task_, __LINE__)::bootstrap_task( \
+    attr_unused const Str_List &$args,                         \
+    attr_unused const Str &$path)
 
 
 #endif // end of include guard: BOOTSTRAP_H_INCLUDED_79FKHBZU
