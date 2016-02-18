@@ -20,9 +20,21 @@ public:
 
   Scaled_Value(Handle<Value_Provider> original,
                float_t                scale_rate)
-    : original(original)
+    : original(std::move(original))
     , scale_rate(scale_rate)
   { }
+
+  inline
+  const Handle<Value_Provider> &get_original() const
+  {
+    return original;
+  }
+
+  inline
+  float_t get_scale_rate() const
+  {
+    return scale_rate;
+  }
 
   virtual float_t get_position_value() const override final
   {
@@ -51,7 +63,7 @@ static inline
 Handle<Value_Provider>
 scale(Handle<Value_Provider> vp, float_t scale_rate)
 {
-  return make_handle<Scaled_Value>(vp, scale_rate);
+  return make_handle<Scaled_Value>(std::move(vp), scale_rate);
 }
 
 static inline
@@ -60,7 +72,7 @@ resolve_x_part(Handle<Value_Provider> vp, float_t angle)
 {
   auto x_scale = std::cos(angle);
 
-  return scale(vp, x_scale);
+  return scale(std::move(vp), x_scale);
 }
 
 static inline
@@ -69,7 +81,7 @@ resolve_y_part(Handle<Value_Provider> vp, float_t angle)
 {
   auto y_scale = std::sin(angle);
 
-  return scale(vp, y_scale);
+  return scale(std::move(vp), y_scale);
 }
 
 static inline

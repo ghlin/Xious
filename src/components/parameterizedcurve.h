@@ -89,7 +89,7 @@ class Parameterized_Curve : public Value_Provider
   using Super = Value_Provider;
 private:
   Update_Parameter update_parameter;
-  float_t          update_time_elpased;
+  float_t          update_time_elpased = 0;
   float_t          position_value,
                    velocity_value;
 
@@ -101,12 +101,24 @@ private:
                 , (Velocity_Value, velocity_value, RO)
                 );
 public:
+  Parameterized_Curve() { }
+
+  Parameterized_Curve(const Parameterized_Curve &another)
+    : update_parameter(another.update_parameter)
+    , update_time_elpased(0)
+  { }
+
   Parameterized_Curve(Update_Parameter update_parameter,
-                       float_t         start_time = 0.0f)
+                      float_t          start_time = 0)
     : update_parameter(update_parameter)
     , update_time_elpased(start_time)
   { }
 
+  inline
+  const Update_Parameter &get_update_parameter() const
+  {
+    return update_parameter;
+  }
 
   virtual float_t get_position_value() const override final
   {

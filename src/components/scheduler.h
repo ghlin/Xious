@@ -2,6 +2,7 @@
 #define SCHEDULER_H_INCLUDED_GO1PZESN
 
 #include "../task.h"
+#include "everyxframes.h"
 
 namespace Xi {
 
@@ -73,6 +74,8 @@ public:
   { }
 
   STWrapper() { }
+
+  XI_COPY_CLONE(STWrapper)
 private:
   virtual void update_logic(const Update_Details &ud) override final
   {
@@ -86,7 +89,7 @@ private:
 static inline
 auto make_schedule(Handle<Task> task, float_t time_out, Scheduled_Task::Schedule_Policy schedule_policy)
 {
-  return make_handle<details::STWrapper>(task, time_out, schedule_policy);
+  return make_handle<details::STWrapper>(std::move(task), time_out, schedule_policy);
 }
 
 class Scheduler : public Task

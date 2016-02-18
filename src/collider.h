@@ -9,11 +9,7 @@ namespace Xi {
 class Collider : public Actor
 {
   using Super = Actor;
-protected:
-  Collision_Model_Type type;
 
-  XI_PROP_EXPORT((Collision_Model_Type, type));
-private:
   struct Colli_Pack
   {
     const Collider *collider;
@@ -28,7 +24,7 @@ private:
     auto lpos = lhs.pos;
     auto rpos = rhs.pos;
 
-    switch (rhs.collider->type)
+    switch (rhs.collider->get_collision_model_type())
     {
     case CM_Round:    return Xi::is_colliding(lpos, lmod.round, rpos, rmod.round);
     case CM_Box:      return Xi::is_colliding(lpos, lmod.round, rpos, rmod.box);
@@ -48,7 +44,7 @@ private:
     auto lpos = lhs.pos;
     auto rpos = rhs.pos;
 
-    switch (rhs.collider->type)
+    switch (rhs.collider->get_collision_model_type())
     {
     case CM_Box:      return Xi::is_colliding(lpos, lmod.box, rpos, rmod.box);
     case CM_Segment:  return Xi::is_colliding(lpos, lmod.box, rpos, rmod.segment);
@@ -67,7 +63,7 @@ private:
     auto lpos = lhs.pos;
     auto rpos = rhs.pos;
 
-    switch (rhs.collider->type)
+    switch (rhs.collider->get_collision_model_type())
     {
     case CM_Segment:  return Xi::is_colliding(lpos, lmod.segment, rpos, rmod.segment);
     case CM_Line:     return Xi::is_colliding(lpos, lmod.segment, rpos, rmod.line);
@@ -85,7 +81,7 @@ private:
     auto lpos = lhs.pos;
     auto rpos = rhs.pos;
 
-    switch (rhs.collider->type)
+    switch (rhs.collider->get_collision_model_type())
     {
     case CM_Line:     return Xi::is_colliding(lpos, lmod.line, rpos, rmod.line);
     default:
@@ -102,32 +98,32 @@ public:
                            const Collider *another,
                            const vec_t    &another_pos) const
   {
-    Xi_debug_check(!(type == CM_Special && another->type == CM_Special));
+    Xi_debug_check(!(get_collision_model_type() == CM_Special && another->get_collision_model_type() == CM_Special));
 
-    if (type == CM_Special)
+    if (get_collision_model_type() == CM_Special)
     {
       return special_colliding_logic(this_pos,
                                      another,
                                      another_pos);
     }
 
-    if (another->type == CM_Special)
+    if (another->get_collision_model_type() == CM_Special)
     {
       return another->special_colliding_logic(another_pos,
                                               this,
                                               this_pos);
     }
 
-    auto lhs = type > another->type
+    auto lhs = get_collision_model_type() > another->get_collision_model_type()
       ? Colli_Pack { this, this_pos }
       : Colli_Pack { another, another_pos };
 
-    auto rhs = type > another->type
+    auto rhs = get_collision_model_type() > another->get_collision_model_type()
       ? Colli_Pack { another, another_pos }
       : Colli_Pack { this, this_pos };
 
 
-    switch (lhs.collider->type)
+    switch (lhs.collider->get_collision_model_type())
     {
     case CM_Round:    return _fwd_round(lhs, rhs);
     case CM_Box:      return _fwd_box(lhs, rhs);

@@ -12,6 +12,18 @@ class Rotate : public Task
 private:
   Handle<Task>           original;
   Handle<Value_Provider> angle;
+public:
+  inline
+  const Handle<Task> &get_original() const
+  {
+    return original;
+  }
+
+  inline
+  const Handle<Value_Provider> get_angle() const
+  {
+    return angle;
+  }
 
   XI_PROP_EXPORT( (Original_Motion, original)
                 , (Angle, angle)
@@ -23,8 +35,8 @@ public:
 
   Rotate(Handle<Task>           original,
          Handle<Value_Provider> angle)
-    : original(original)
-    , angle(angle)
+    : original(std::move(original))
+    , angle(std::move(angle))
   { }
 
   inline float_t get_current_angle() const

@@ -7,12 +7,21 @@
 
 namespace Xi {
 
-static Painter      *g_painter = nullptr;
-static ::SDL_Window *g_window  = nullptr;
+static Painter *_the_painter()
+{
+  static Painter _;
+  return &_;
+}
 
 const Painter &the_painter()
 {
-  return *g_painter;
+  return return *_the_painter();
+}
+
+static ::SDL_Window **_the_window()
+{
+  static ::SDL_Window *_;
+  return &_;
 }
 
 XI_BOOTSTRAP_ON("SDL", { })
@@ -47,17 +56,15 @@ XI_BOOTSTRAP_ON("SDL", { })
 
   // load_textures(renderer);
 
-  g_window = window;
-  g_painter = new Painter;
-
-  g_painter->renderer = renderer;
+  *_the_window()           = window;
+  _the_painter()->renderer = renderer;
 
   Xi_log("SDL is ready.");
 }
 
 XI_BOOTSTRAP_CLEANUP("SDL", { })
 {
-  cleanup_sdl_resource(g_painter->renderer, g_window);
+  cleanup_sdl_resource(_the_painter()->renderer, *_the_window());
 
   Xi_log("SDL cleanup done.");
 }

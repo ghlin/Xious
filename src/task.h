@@ -32,7 +32,6 @@ public:
                 , (Position_Angle, math::angle(position), RO)
                 , (Velocity_Angle, math::angle(velocity), RO)
                 );
-public:
 };
 
 } // namespace Xi

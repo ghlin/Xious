@@ -47,6 +47,30 @@ public:
     return std::make_shared<Type>(*this);             \
   }
 
+#define XI_OBJECT_COMMON(Type, Base) \
+  public: XI_COPY_CLONE(Type)        \
+  private: using Super = Base
+
+template <class Base_Type>
+struct Object_Completer
+{
+  using Super = Base_Type;
+};
+
+/*
+ * how about:
+ *
+ * template <class Klass, class Base>
+ * class Object_Completer : public Base
+ * {
+ * public:  XI_COPY_CLONE(Klass)
+ * private: using Super = base;
+ * };
+ *
+ */
+
+#define XI_CLASS(Klass, Base_Type) class Klass : public Base_Type, Object_Completer<Base_Type>
+
 } // namespace Xi
 
 #endif // end of include guard: OBJECT_H_INCLUDED_REVFSI2K

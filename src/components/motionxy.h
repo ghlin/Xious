@@ -19,13 +19,25 @@ private:
                 , (Y_Motion, y_motion)
                 );
 public:
+  inline
+  const Handle<Value_Provider> &get_x_motion() const
+  {
+    return x_motion;
+  }
+
+  inline
+  const Handle<Value_Provider> &get_y_motion() const
+  {
+    return y_motion;
+  }
+public:
   Motion_XY()
   { }
 
   Motion_XY(Handle<Value_Provider> x_motion,
             Handle<Value_Provider> y_motion)
-    : x_motion(x_motion)
-    , y_motion(y_motion)
+    : x_motion(std::move(x_motion))
+    , y_motion(std::move(y_motion))
   { }
 
   Motion_XY(Handle<Value_Provider> original,

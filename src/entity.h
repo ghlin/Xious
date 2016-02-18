@@ -44,19 +44,22 @@ public:
 
   virtual void do_render(const Update_Details &ud) = 0;
 
-  const Task *get_task() const
+  inline
+  const Handle<Task> &get_task() const
   {
-    return task.get();
+    return task;
   }
 
-  const Collider *get_collider() const
+  inline
+  const Handle<Collider> &get_collider() const
   {
-    return collider.get();
+    return collider;
   }
 
-  const Render *get_render() const
+  inline
+  const Handle<Render> &get_render() const
   {
-    return render.get();
+    return render;
   }
 protected:
   virtual void update_logic(const Update_Details &ud) override

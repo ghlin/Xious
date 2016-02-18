@@ -3,20 +3,29 @@
 
 #define _XI_PROP_DECL(key, expr) constexpr static char XI_JOIN(Prop_, key)[] = XI_STRINGIFY(key)
 
+// {{{ GET
 #define _XI_PROP_GET_IMPL_RW(key, expr)                   \
   do {                                                    \
     if ($key == XI_STRINGIFY(key))                        \
       return Var::of<std::decay_t<decltype(expr)>>(expr); \
   } while (false)
+
 #define _XI_PROP_GET_IMPL_RO(key, expr) _XI_PROP_GET_IMPL_RW(key, expr)
+
 #define _XI_PROP_GET_IMPL_WO(key, expr)                           \
   do {                                                            \
     if ($key == XI_STRINGIFY(key))                                \
       Xi_die("Property `" XI_STRINGIFY(key) "' cannot be read."); \
   } while (false)
+
 #define _XI_PROP_GET_IMPL_SETTER_EXP(key, expr, opt, ext)   \
   _XI_PROP_GET_IMPL_3(key, expr, opt)
 
+#define _XI_PROP_GET_IMPL_SETTER_FN(key, expr, opt, ext)   \
+  _XI_PROP_GET_IMPL_3(key, expr, opt)
+// }}}
+
+// {{{ SET
 #define _XI_PROP_SET_IMPL_RW(key, expr)                \
   do {                                                 \
     if ($key == XI_STRINGIFY(key))                     \
@@ -25,6 +34,7 @@
       return;                                          \
     }                                                  \
   } while (false)
+
 #define _XI_PROP_SET_IMPL_SETTER_EXP(key, expr, opt, ext)   \
   do {                                                      \
     if ($key == XI_STRINGIFY(key))                          \
@@ -33,12 +43,24 @@
       return;                                               \
     }                                                       \
   } while (false)
+
+#define _XI_PROP_SET_IMPL_SETTER_EXP(key, fn, opt, ext)     \
+  do {                                                      \
+    if ($key == XI_STRINGIFY(key))                          \
+    {                                                       \
+      fn($val);                                             \
+      return;                                               \
+    }                                                       \
+  } while (false)
+
 #define _XI_PROP_SET_IMPL_WO(key, expr) _XI_PROP_SET_IMPL_RW(key, expr)
+
 #define _XI_PROP_SET_IMPL_RO(key, expr)                              \
   do {                                                               \
     if ($key == XI_STRINGIFY(key))                                   \
       Xi_die("Property `" XI_STRINGIFY(key) "' cannot be written."); \
   } while (false)
+// }}}
 
 #define _XI_PROP_DECL_HELPER(...) _XI_PROP_DECL(XI_CAR(__VA_ARGS__), XI_CAR(XI_CDR(__VA_ARGS__)))
 
