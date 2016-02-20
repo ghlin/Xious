@@ -6,14 +6,13 @@
 namespace Xi {
 
 template <class Upd_Object>
-class Every_X_Frames : public Upd_Object
+class Every_X_Frames : public Implements<Upd_Object, Every_X_Frames<Upd_Object>>
 {
-  using Super = Upd_Object;
-public:
 protected:
   Handle<Upd_Object>      action;
 
   frame_t                 x_frames;
+  frame_t                 passed_frames = 0;
 public:
 
   template <class Action>

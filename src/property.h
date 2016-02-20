@@ -44,7 +44,7 @@
     }                                                       \
   } while (false)
 
-#define _XI_PROP_SET_IMPL_SETTER_EXP(key, fn, opt, ext)     \
+#define _XI_PROP_SET_IMPL_SETTER_FN(key, fn, opt, ext)      \
   do {                                                      \
     if ($key == XI_STRINGIFY(key))                          \
     {                                                       \

@@ -84,7 +84,7 @@ Update_Parameter resolve_y_part(Update_Parameter up, float_t angle)
 }
 
 
-class Parameterized_Curve : public Value_Provider
+class Parameterized_Curve : public Implements<Value_Provider, Parameterized_Curve>
 {
   using Super = Value_Provider;
 private:

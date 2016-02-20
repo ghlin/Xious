@@ -6,10 +6,8 @@
 
 namespace Xi {
 
-class Collider : public Actor
+class Collider : public Extends<Actor>
 {
-  using Super = Actor;
-
   struct Colli_Pack
   {
     const Collider *collider;

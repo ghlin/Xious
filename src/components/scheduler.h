@@ -6,10 +6,8 @@
 
 namespace Xi {
 
-class Scheduled_Task : public Task
+class Scheduled_Task : public Extends<Task>
 {
-  using Super = Task;
-
 public:
   enum Schedule_Policy
   {
@@ -57,11 +55,8 @@ public:
 
 namespace details {
 
-class STWrapper : public Scheduled_Task
+class STWrapper : public Implements<Scheduled_Task, STWrapper>
 {
-  using Super = Scheduled_Task;
-
-private:
   Handle<Task>  task;
 
   XI_PROP_EXPORT((Wrapped_Task, task));
@@ -69,13 +64,11 @@ public:
   STWrapper(Handle<Task>    task,
             float_t         time_out,
             Schedule_Policy schedule_policy)
-    : Super(time_out, schedule_policy)
+    : Base(time_out, schedule_policy)
     , task(task)
   { }
 
   STWrapper() { }
-
-  XI_COPY_CLONE(STWrapper)
 private:
   virtual void update_logic(const Update_Details &ud) override final
   {
@@ -92,7 +85,7 @@ auto make_schedule(Handle<Task> task, float_t time_out, Scheduled_Task::Schedule
   return make_handle<details::STWrapper>(std::move(task), time_out, schedule_policy);
 }
 
-class Scheduler : public Task
+class Scheduler : public Implements<Task, Scheduler>
 {
   using Super = Task;
 private:

@@ -5,10 +5,8 @@
 
 namespace Xi {
 
-class Scaled_Value : public Value_Provider
+class Scaled_Value : public Implements<Value_Provider, Scaled_Value>
 {
-  using Super = Value_Provider;
-private:
   Handle<Value_Provider>  original;
   float_t                 scale_rate;
 

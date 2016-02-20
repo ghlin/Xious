@@ -6,10 +6,8 @@
 
 namespace Xi {
 
-class Actor : public Prototype
+class Actor : public Extends<Prototype>
 {
-  using Super = Prototype;
-
   float_t            time_elpased  = 0;
   frame_t            update_mark   = std::numeric_limits<frame_t>::max(),
                      frame         = 0,

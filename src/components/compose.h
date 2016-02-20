@@ -5,11 +5,8 @@
 
 namespace Xi {
 
-class Composed_Task : public Task
+class Composed_Task : public Implements<Task, Composed_Task>
 {
-  using Super = Task;
-
-private:
   std::vector<Handle<Task>>     tasks;
 
   XI_PROP_EXPORT( (Tasks, tasks)

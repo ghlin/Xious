@@ -6,9 +6,8 @@
 
 namespace Xi {
 
-class Task : public Actor
+class Task : public Extends<Actor>
 {
-  using Super = Actor;
 public:
   vec_t          position;
   vec_t          velocity;

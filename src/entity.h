@@ -6,9 +6,8 @@
 namespace Xi {
 
 
-class Entity : public Actor
+class Entity : public Extends<Actor>
 {
-  using Super = Actor;
 public:
   enum Update_Status : uint32_t
   {

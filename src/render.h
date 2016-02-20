@@ -5,9 +5,8 @@
 
 namespace Xi {
 
-class Render : public Actor
+class Render : public Extends<Actor>
 {
-  using Super = Actor;
 public:
   virtual void draw(const Update_Details &ud) = 0;
 };

@@ -6,10 +6,8 @@
 
 namespace Xi {
 
-class Rotate : public Task
+class Rotate : public Implements<Task, Rotate>
 {
-  using Super = Task;
-private:
   Handle<Task>           original;
   Handle<Value_Provider> angle;
 public:

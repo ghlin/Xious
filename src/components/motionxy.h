@@ -8,9 +8,8 @@
 
 namespace Xi {
 
-class Motion_XY : public Task
+class Motion_XY : public Implements<Task, Motion_XY>
 {
-  using Super = Task;
 private:
   Handle<Value_Provider> x_motion;
   Handle<Value_Provider> y_motion;

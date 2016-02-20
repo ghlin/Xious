@@ -5,9 +5,8 @@
 
 namespace Xi {
 
-class Value_Provider : public Actor
+class Value_Provider : public Extends<Actor>
 {
-  using Super = Actor;
 public:
   virtual float_t get_position_value()     const { return 0; }
   virtual float_t get_velocity_value()     const { return 0; }
