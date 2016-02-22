@@ -5,15 +5,15 @@
 
 namespace Xi {
 
-#ifndef XI_MAGIC_VAR_STORAGE_SIZE
-#define XI_MAGIC_VAR_STORAGE_SIZE 32
+#ifndef XI_VAR_STORAGE_MAGIC_CAPACITY
+#define XI_VAR_STORAGE_MAGIC_CAPACITY 32
 #endif
 
-constexpr size_t kMagic_Var_Storage_Size = XI_MAGIC_VAR_STORAGE_SIZE;
+constexpr size_t kVar_Storage_Magic_Capacity = XI_VAR_STORAGE_MAGIC_CAPACITY;
 
 class Var
 {
-  uint8_t storage[kMagic_Var_Storage_Size];
+  uint8_t storage[kVar_Storage_Magic_Capacity];
 
   struct Content_Base
   {
@@ -103,7 +103,7 @@ class Var
   template <class T, class ...Args>
   Var(const Tag<T> &, Args &&...args)
   {
-    static_assert(sizeof (Content<T>) <= kMagic_Var_Storage_Size, "Danger! Danger!");
+    static_assert(sizeof (Content<T>) <= kVar_Storage_Magic_Capacity, "Danger! Danger!");
 
     new (get_storage()) Content<T>(std::forward<Args>(args)...);
   }

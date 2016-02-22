@@ -86,8 +86,6 @@ Update_Parameter resolve_y_part(Update_Parameter up, float_t angle)
 
 class Parameterized_Curve : public Implements<Value_Provider, Parameterized_Curve>
 {
-  using Super = Value_Provider;
-private:
   Update_Parameter update_parameter;
   float_t          update_time_elpased = 0;
   float_t          position_value,
@@ -104,6 +102,11 @@ public:
   Parameterized_Curve() { }
 
   Parameterized_Curve(const Parameterized_Curve &another)
+    : update_parameter(another.update_parameter)
+    , update_time_elpased(0)
+  { }
+
+  Parameterized_Curve(Parameterized_Curve &&another)
     : update_parameter(another.update_parameter)
     , update_time_elpased(0)
   { }

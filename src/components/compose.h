@@ -17,6 +17,15 @@ class Composed_Task : public Implements<Task, Composed_Task>
 public:
   Composed_Task() { }
 
+  Composed_Task(const Composed_Task &composed_task)
+    : tasks(u_map(composed_task, [] (auto &task)
+                  {
+                    return handle_cast<Task>(task->clone());
+                  }))
+  { }
+
+  Composed_Task(Composed_Task &&) = default;
+
   template <class ...Args>
   Composed_Task(Args &&...args)
     : tasks(std::forward<Args>(args)...)

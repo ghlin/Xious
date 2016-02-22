@@ -9,7 +9,9 @@ namespace Xi {
 
 class Object_Property_Ctrl;
 
-class Object : public std::enable_shared_from_this<Object>
+class Object
+  : public std::enable_shared_from_this<Object>
+  /* TODO: enable_shared_from_this -> Shared_Handle */
 {
   friend class Object_Property_Ctrl;
 public:
@@ -51,8 +53,7 @@ template <class B>
 class Extends : public B
 {
 protected:
-  using Super = B;
-  using Base  = Extends;
+  using Super = Extends;
   using B::B;
 };
 
@@ -60,8 +61,7 @@ template <class B, class D>
 class Implements : public B
 {
 protected:
-  using Super = B;
-  using Base  = Implements;
+  using Super = Implements;
   using B::B;
 public:
   virtual Handle<Prototype> clone() const override

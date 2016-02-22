@@ -45,6 +45,13 @@ public:
     , y_motion(resolve_y_part(original, angle))
   { }
 
+  Motion_XY(const Motion_XY &motion_xy)
+    : x_motion(handle_cast<Value_Provider>(motion_xy.x_motion->clone()))
+    , y_motion(handle_cast<Value_Provider>(motion_xy.y_motion->clone()))
+  { }
+
+  Motion_XY(Motion_XY &&) = default;
+
 protected:
   virtual void update_logic(const Update_Details &ud) override final
   {

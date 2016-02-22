@@ -13,14 +13,26 @@ class Actor : public Extends<Prototype>
                      frame         = 0,
                      frame_skipped = 0;
 public:
-  bool               skip_double_updating = true;
+  bool               skip_multiply_updating = true;
 
   XI_PROP_EXPORT( (Time_Elpased, time_elpased)
                 , (Frame, frame)
-                , (Skip_Double_Updating, skip_double_updating)
+                , (Skip_multiply_Updating, skip_multiply_updating)
                 );
 protected:
   virtual void update_logic(const Update_Details &ud) = 0;
+public:
+  Actor() { }
+
+  Actor(const Actor &actor)
+    : Actor()
+    , skip_multiply_updating(another.skip_multiply_updating)
+  { }
+
+  Actor(Actor &&actor)
+    : Actor()
+    , skip_multiply_updating(another.skip_multiply_updating)
+  { }
 public:
   inline float_t get_time_elpased() const
   {
@@ -39,7 +51,7 @@ public:
 
   inline void update(const Update_Details &ud)
   {
-    if (skip_double_updating && updated_this_frame(ud))
+    if (skip_multiply_updating && updated_this_frame(ud))
       return;
 
     frame         += ud.delta_frame;
@@ -53,6 +65,8 @@ public:
 
     update_logic(ud);
   }
+
+  // TODO: restart/rewind method? 2016-02-22 17:20:02
 };
 
 } // namespace Xi

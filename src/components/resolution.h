@@ -16,6 +16,13 @@ class Scaled_Value : public Implements<Value_Provider, Scaled_Value>
 public:
   Scaled_Value() { }
 
+  Scaled_Value(const Scaled_Value &scaled_value)
+    : original(original->clone())
+    , scale_rate(scale_rate.scale_rate)
+  { }
+
+  Scaled_Value(Scaled_Value &&) = default;
+
   Scaled_Value(Handle<Value_Provider> original,
                float_t                scale_rate)
     : original(std::move(original))
