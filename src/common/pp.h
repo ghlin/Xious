@@ -1,8 +1,11 @@
 #ifndef PP_H_INCLUDED_PI681K2O
 #define PP_H_INCLUDED_PI681K2O
 
-#define XI_CAR(x, ...) x
-#define XI_CDR(x, ...) __VA_ARGS__
+#define XI_CAR(x, ...)     _XI_CAR(x, __VA_ARGS__)
+#define _XI_CAR(x, ...)    x
+
+#define XI_CDR(x, ...)     _XI_CDR(x, __VA_ARGS__)
+#define _XI_CDR(x, ...)    __VA_ARGS__
 
 #define XI_VAL_0       0
 #define XI_VAL_PLUS_0  1
