@@ -44,6 +44,41 @@ struct Disable_Move
   Disable_Move() = default;
 };
 
+
+template <class Data>
+struct Default_Copy : public Data
+{
+  Default_Copy(const Default_Copy &) = default;
+  Default_Copy(Default_Copy      &&) = default;
+
+  Default_Copy &operator =(const Default_Copy &) = default;
+  Default_Copy &operator =(Default_Copy      &&) = default;
+};
+
+template <class Data>
+struct Reset_Copy : public Data
+{
+  Reset_Copy(const Reset_Copy &)
+    : Data()
+  { }
+
+  Reset_Copy(Reset_Copy      &&)
+    : Data()
+  { }
+
+  inline
+  Reset_Copy &operator =(const Reset_Copy &)
+  {
+    *static_cast<Data *>(this) = { };
+  }
+
+  inline
+  Reset_Copy &operator =(Reset_Copy      &&)
+  {
+    *static_cast<Data *>(this) = { };
+  }
+};
+
 } // namespace cc
 } // namespace Xi
 

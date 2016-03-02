@@ -4,6 +4,7 @@
 #include "config.h"
 #include "variant.h"
 #include "property.h"
+#include "util/chain.h"
 
 namespace Xi {
 
@@ -20,6 +21,9 @@ public:
 protected:
   virtual Var  get_property(const Str &key) const;
   virtual void set_property(const Str &key, const Var &val);
+
+  // debug
+  virtual Str dump_classname() const;
 };
 
 
@@ -27,48 +31,47 @@ class Prototype : public Object
 {
 public:
   virtual Handle<Prototype> clone() const;
-
-  virtual Handle<Prototype> share() const
-  {
-    return clone();
-  }
 };
 
-#define XI_STATELESS(Type)                                     \
-  virtual Handle<Prototype> share() const override final;      \
-  {                                                            \
-    static_assert(std::is_final<Type>::value,                  \
-                  "A Stateless object must be Final.");        \
-    return handle_cast<Prototype>(const_cast<Type &>(*this));  \
-  }
+namespace addon { namespace details {
 
-
-#define XI_COPY_CLONE(Type)                           \
-  virtual Handle<Prototype> clone() const override    \
-  {                                                   \
-    return std::make_shared<Type>(*this);             \
-  }
-
-template <class B>
-class Extends : public B
+template <class B, class D>
+class Addon_Dump_Classname : public B
 {
-protected:
-  using Super = Extends;
+public:
   using B::B;
+
+  virtual Str dump_classname() const override
+  {
+    return u_pretty_typename<D>();
+  };
 };
 
 template <class B, class D>
-class Implements : public B
+class Addon_Clone_Via_CCTOR : public B
 {
-protected:
-  using Super = Implements;
-  using B::B;
 public:
+  using B::B;
+
   virtual Handle<Prototype> clone() const override
   {
     return make_handle<D>(*static_cast<const D *>(this));
   }
 };
+
+} // namespace details
+
+using Dump_Classname  = Make_Addon<details::Addon_Dump_Classname>;
+using Clone_Via_CCTOR = Make_Addon<details::Addon_Clone_Via_CCTOR>;
+
+} // namespace addon
+
+
+template <class B>
+using Extends = chain<With<B, /* doesn't matter */ void>>;
+
+template <class B, class D>
+using Implements = chain<With<B, D>, addon::Dump_Classname, addon::Clone_Via_CCTOR>;
 
 } // namespace Xi
 

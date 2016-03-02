@@ -6,7 +6,7 @@
 namespace Xi {
 
 
-class Entity : public Extends<Actor>
+class Entity : public Extends<Controller>
 {
 public:
   enum Update_Status : uint32_t

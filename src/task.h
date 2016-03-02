@@ -6,7 +6,7 @@
 
 namespace Xi {
 
-class Task : public Extends<Actor>
+class Task : public Extends<Controller>
 {
 public:
   vec_t          position;

@@ -230,6 +230,34 @@ bool u_has(const T &c, const K &k)
   return c.find(k) != c.end();
 }
 
+template <class T, class ...Args>
+static inline
+T *u_construct(void *ptr, Args &&...args)
+{
+  return new (ptr) T(std::forward<Args>(args)...);
+}
+
+template <class T>
+static inline
+std::enable_if_t<!std::is_trivially_destructible<T>::value>
+u_destruct(T *ptr)
+{
+  ptr->~T();
+}
+
+template <class T>
+static inline
+std::enable_if_t<std::is_trivially_destructible<T>::value>
+u_destruct(T *) { }
+
+template <class T, class ...Args>
+static inline
+T *u_reconstruct(T *ptr, Args &&...args)
+{
+  u_destruct(ptr);
+  return u_construct<T>(ptr, std::forward<Args>(args)...);
+}
+
 // }}}
 
 // {{{ stringify
@@ -404,6 +432,15 @@ static inline
 bool u_check_bit(uint64_t pattern, uint64_t mask)
 {
   return (pattern & mask) == mask;
+}
+
+extern Str u_name_demangle(const Str &mangled_name);
+
+template <typename T>
+static inline
+Str u_pretty_typename()
+{
+  return u_name_demangle(typeid (T).name());
 }
 
 // }}}

@@ -1,16 +1,9 @@
-#ifndef ACTOR_H_INCLUDED_ZTWDMRLV
-#define ACTOR_H_INCLUDED_ZTWDMRLV
+#ifndef CTRL_H_INCLUDED_CTGAAVT6
+#define CTRL_H_INCLUDED_CTGAAVT6
 
-#include "object.h"
-#include "updatedetails.h"
+#include "actor.h"
 
 namespace Xi {
-
-class Actor : public Extends<Prototype>
-{
-public:
-  virtual void update(const Update_Details &ud) = 0;
-};
 
 namespace addon { namespace details {
 
@@ -22,9 +15,6 @@ struct Keep_Time_Elpased_Info
   { }
 
   Keep_Time_Elpased_Info(Keep_Time_Elpased_Info &&)
-  { }
-
-  Keep_Time_Elpased_Info()
   { }
 
   inline float_t get_time_elpased() const
@@ -53,7 +43,6 @@ public:
     static_cast<D *>(this)->update_routine(ud);
   }
 
-  using Super = B;
   XI_PROP_EXPORT((Time_Elpased, time_elpased));
 };
 
@@ -81,8 +70,6 @@ public:
     : B()
   { }
 
-  using Super = B;
-
   XI_PROP_EXPORT( (Time_Elpased, time_elpased)
                 , (Frame, frame));
 
@@ -103,7 +90,7 @@ private:
     static_cast<D *>(this)->before_update_routine(ud);
   }
 
-  void invoke_before_routine(const Update_Details &, const std::false_type &/* no */)
+  void invoke_before_routine(const Update_Details &ud, const std::false &/* no */)
   {
     /* do nothing. */
   }
@@ -113,7 +100,7 @@ private:
     static_cast<D *>(this)->after_update_routine(ud);
   }
 
-  void invoke_after_routine(const Update_Details &, const std::false_type &/* no */)
+  void invoke_after_routine(const Update_Details &ud, const std::false &/* no */)
   {
     /* do nothing. */
   }
@@ -151,19 +138,10 @@ using Stated_Update_Routine = Make_Addon<details::Stated_Update_Routine>;
 
 } // namespace addon
 
-class Simple_Actor : public chain
-                     < With<Actor, Simple_Actor>
-                     , addon::Simple_Update_Routine
-                     >
-{
-public:
-  virtual void update_routine(const Update_Details &ud) = 0;
-};
-
 class Controller : public chain
-                   < With<Actor, Controller>
-                   , addon::Stated_Update_Routine
-                   >
+                 < With<Actor, Ctrl>
+                 , Stated_Update_Routine
+                 >
 {
 public:
   using Update_Once        = std::true_type;
@@ -181,5 +159,5 @@ public:
 
 } // namespace Xi
 
-#endif // end of include guard: ACTOR_H_INCLUDED_ZTWDMRLV
+#endif // end of include guard: CTRL_H_INCLUDED_CTGAAVT6
 
