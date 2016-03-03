@@ -1,57 +1,61 @@
 #ifndef CHAIN_H_INCLUDED_AMEDFIP8
 #define CHAIN_H_INCLUDED_AMEDFIP8
 
-namespace Xi {
+#include "../config.h"
 
-template <class B, class D>
-class With : public B
-{
-public:
-  using Super = B;
-  using This  = D;
-};
+namespace Xi {
 
 namespace details {
 
-template <class With, class Addon, class ...Rest>
-class chain_impl
-  : public Addon::template Apply<chain_impl<With, Rest...>, typename With::This>
-{
-protected:
-  using Chain_Prev = typename Addon::template Apply<chain_impl<With, Rest...>, typename With::This>;
+struct Dummy;
+struct End_Of_Chain;
 
-  using Super = chain_impl;
-public:
-  using Chain_Prev::Chain_Prev;
+template <class With, class I, class ...R>
+struct chain_impl
+{
+  using Klass = typename I::template Apply<typename chain_impl<With, R...>::Klass, With>;
 };
 
-struct End_Of_Chain_Tag;
 
 template <class With>
-class chain_impl<With, End_Of_Chain_Tag>
-  : public With::Super
+struct chain_impl<With, details::End_Of_Chain>
 {
-protected:
-  using Super = chain_impl;
-
-  using Chain_Prev = typename With::Super;
-  using Chain_Root = typename With::Super;
-public:
-  using Chain_Prev::Chain_Prev;
+  using Klass = typename With::Super;
 };
 
 } // namespace details
 
-template <class ...C>
-using chain = details::chain_impl<C..., details::End_Of_Chain_Tag>;
+template <class ...R>
+struct With
+{
+  using Args   = std::tuple<R..., details::Dummy, details::Dummy, details::Dummy>;
 
+  using Super  = std::tuple_element_t<0, Args>;
+  using Client = std::tuple_element_t<1, Args>;
+
+  using First  = std::tuple_element_t<1, Args>;
+  using Second = std::tuple_element_t<2, Args>;
+  using Third  = std::tuple_element_t<3, Args>;
+};
+
+// add Super typedef.
+template <class With, class ...R>
+class chain : public details::chain_impl<With, R..., details::End_Of_Chain>::Klass
+{
+  using Base = typename details::chain_impl<With, R..., details::End_Of_Chain>::Klass;
+public:
+  using Super = chain;
+
+  using Base::Base;
+};
 
 template <template <class, class> class F>
-struct Make_Addon
+struct addin
 {
-  template <class B, class D>
-  using Apply = F<B, D>;
+  template <class S, class W>
+  using Apply = F<S, W>;
 };
+
 
 } // namespace Xi
 

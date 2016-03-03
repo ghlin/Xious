@@ -23,7 +23,8 @@ protected:
   virtual void set_property(const Str &key, const Var &val);
 
   // debug
-  virtual Str dump_classname() const;
+  virtual Str dump_classname() const = 0;
+  virtual Str dump_inheritance_chain() const;
 };
 
 
@@ -33,45 +34,61 @@ public:
   virtual Handle<Prototype> clone() const;
 };
 
-namespace addon { namespace details {
-
-template <class B, class D>
-class Addon_Dump_Classname : public B
+template <class S, class With>
+class Enable_Clone_Via_CCTOR : public S
 {
+protected:
+  using Super = S;
 public:
-  using B::B;
-
-  virtual Str dump_classname() const override
-  {
-    return u_pretty_typename<D>();
-  };
-};
-
-template <class B, class D>
-class Addon_Clone_Via_CCTOR : public B
-{
-public:
-  using B::B;
+  using Super::Super;
 
   virtual Handle<Prototype> clone() const override
   {
-    return make_handle<D>(*static_cast<const D *>(this));
+    static_assert(std::is_base_of<Prototype, Enable_Clone_Via_CCTOR>::value, "Inherit Prototype first!");
+
+    using Client = typename With::Client;
+
+    return make_handle<Client>(*static_cast<const Client *>(this));
   }
 };
 
-} // namespace details
+template <class S, class With>
+class Enable_Dump_By_Type : public S
+{
+  static const Str &classname()
+  {
+    using Client = typename With::Client;
 
-using Dump_Classname  = Make_Addon<details::Addon_Dump_Classname>;
-using Clone_Via_CCTOR = Make_Addon<details::Addon_Clone_Via_CCTOR>;
+    static Str the_classname = u_pretty_typename<Client>();
 
-} // namespace addon
+    return the_classname;
+  }
+protected:
+  using Super = S;
+  using Super::Super;
 
+public:
+  virtual Str dump_classname() const override
+  {
+    return classname();
+  }
+
+  virtual Str dump_inheritance_chain() const override
+  {
+    return dump_inheritance_chain() + " -> " + classname();
+  }
+};
 
 template <class B>
-using Extends = chain<With<B, /* doesn't matter */ void>>;
+using Extends = chain<With<B>>;
 
-template <class B, class D>
-using Implements = chain<With<B, D>, addon::Dump_Classname, addon::Clone_Via_CCTOR>;
+template <class B, class D, class ...R>
+using Implements = chain
+                   < With<B, D>
+                   , addin<Enable_Clone_Via_CCTOR>
+                   , addin<Enable_Dump_By_Type>
+                   , R...
+                   >;
 
 } // namespace Xi
 

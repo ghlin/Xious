@@ -16,15 +16,15 @@ protected:
 public:
 
   template <class Action>
-  Every_X_Frames(Action  &&action, frame_t   x_frames)
+  Every_X_Frames(Action &&action, frame_t x_frames)
     : action(std::forward<Action>(action))
     , x_frames(x_frames)
   { }
 
   Every_X_Frames(const Every_X_Frames &every_x_frames)
-    : action(handle_cast<Upd_Object>(every_x_frames.action->clone()))
+    : Super(every_x_frames)
+    , action(handle_cast<Upd_Object>(every_x_frames.action->clone()))
     , x_frames(every_x_frames.x_frames)
-    , passed_frames(0)
   { }
 
   Every_X_Frames(Every_X_Frames &&) = default;

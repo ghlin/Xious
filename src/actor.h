@@ -12,19 +12,25 @@ public:
   virtual void update(const Update_Details &ud) = 0;
 };
 
-namespace addon { namespace details {
-
-struct Keep_Time_Elpased_Info
+template <class S, class With>
+class Enable_Simple_Update_Routine : public S
 {
-  float_t        time_elpased = 0;
+protected:
+  float_t        time_elpased = 0.0f;
 
-  Keep_Time_Elpased_Info(const Keep_Time_Elpased_Info &)
+  using Super = S;
+public:
+  using Super::Super;
+
+
+  Enable_Simple_Update_Routine() { }
+
+  Enable_Simple_Update_Routine(const Enable_Simple_Update_Routine &r)
+    : Super(r)
   { }
 
-  Keep_Time_Elpased_Info(Keep_Time_Elpased_Info &&)
-  { }
-
-  Keep_Time_Elpased_Info()
+  Enable_Simple_Update_Routine(Enable_Simple_Update_Routine &&r)
+    : Super(std::move(r))
   { }
 
   inline float_t get_time_elpased() const
@@ -32,61 +38,48 @@ struct Keep_Time_Elpased_Info
     return time_elpased;
   }
 
-  inline void update_time_elpased(const Update_Details &ud)
-  {
-    time_elpased += ud.delta_time_elpased;
-  }
-};
-
-template <class B, class D>
-class Simple_Update_Routine
-  : public     B
-  , protected  Keep_Time_Elpased_Info
-{
-public:
-  using B::B;
-
   virtual void update(const Update_Details &ud) override final
   {
-    this->update_time_elpased(ud);
+    time_elpased += ud.delta_time_elpased;
 
-    static_cast<D *>(this)->update_routine(ud);
+    static_cast<typename With::Client *>(this)->update_routine(ud);
   }
 
-  using Super = B;
   XI_PROP_EXPORT((Time_Elpased, time_elpased));
 };
 
-template <class B, class D>
-class Stated_Update_Routine
-  : public      B
-  , protected   Keep_Time_Elpased_Info
+template <class S, class With>
+class Enable_Stated_Update_Routine : public S
 {
+protected:
+  using Super = S;
 public:
-  using B::B;
-
-private:
+  using Super::Super;
+protected:
+  float_t       time_elpased = 0;
   frame_t       token = std::numeric_limits<frame_t>::max(),
                 frame = 0;
 public:
-  Stated_Update_Routine(const Stated_Update_Routine &r)
-    : B(r)
+  Enable_Stated_Update_Routine(const Enable_Stated_Update_Routine &r)
+    : Super(r)
   { }
 
-  Stated_Update_Routine(Stated_Update_Routine &&r)
-    : B(std::move(r))
+  Enable_Stated_Update_Routine(Enable_Stated_Update_Routine &&r)
+    : Super(std::move(r))
   { }
 
-  Stated_Update_Routine()
-    : B()
+  Enable_Stated_Update_Routine()
+    : Super()
   { }
-
-  using Super = B;
 
   XI_PROP_EXPORT( (Time_Elpased, time_elpased)
                 , (Frame, frame));
-
 public:
+  inline float_t get_time_elpased() const
+  {
+    return time_elpased;
+  }
+
   inline frame_t get_frame() const
   {
     return frame;
@@ -98,9 +91,11 @@ public:
   }
 
 private:
+  using Client = typename With::Client;
+
   void invoke_before_routine(const Update_Details &ud, const std::true_type &/* yes */)
   {
-    static_cast<D *>(this)->before_update_routine(ud);
+    static_cast<Client *>(this)->before_update_routine(ud);
   }
 
   void invoke_before_routine(const Update_Details &, const std::false_type &/* no */)
@@ -110,7 +105,7 @@ private:
 
   void invoke_after_routine(const Update_Details &ud, const std::true_type &/* yes */)
   {
-    static_cast<D *>(this)->after_update_routine(ud);
+    static_cast<Client *>(this)->after_update_routine(ud);
   }
 
   void invoke_after_routine(const Update_Details &, const std::false_type &/* no */)
@@ -121,11 +116,11 @@ public:
   virtual void update(const Update_Details &ud) override final
   {
     // TODO: Add sfinae checker 2016-03-02 22:02:32
-    using Use_Before_Routine = typename D::Use_Before_Routine;
-    using Use_After_Routine  = typename D::Use_After_Routine;
+    using Use_Before_Routine = typename Client::Use_Before_Routine;
+    using Use_After_Routine  = typename Client::Use_After_Routine;
 
     constexpr bool once_policy =
-      std::is_same< typename D::Update_Once
+      std::is_same< typename Client::Update_Once
                   , std::true_type>::value;
 
     invoke_before_routine(ud, Use_Before_Routine());
@@ -135,25 +130,18 @@ public:
       frame += ud.delta_frame;
       token  = ud.frame;
 
-      this->update_time_elpased(ud);
+      time_elpased += ud.delta_time_elpased;
 
-      static_cast<D *>(this)->update_routine(ud);
+      static_cast<Client *>(this)->update_routine(ud);
     }
 
     invoke_after_routine(ud, Use_After_Routine());
   }
 };
 
-} // namespace details
-
-using Simple_Update_Routine = Make_Addon<details::Simple_Update_Routine>;
-using Stated_Update_Routine = Make_Addon<details::Stated_Update_Routine>;
-
-} // namespace addon
-
 class Simple_Actor : public chain
                      < With<Actor, Simple_Actor>
-                     , addon::Simple_Update_Routine
+                     , addin<Enable_Simple_Update_Routine>
                      >
 {
 public:
@@ -162,7 +150,7 @@ public:
 
 class Controller : public chain
                    < With<Actor, Controller>
-                   , addon::Stated_Update_Routine
+                   , addin<Enable_Stated_Update_Routine>
                    >
 {
 public:
