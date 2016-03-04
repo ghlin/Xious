@@ -22,7 +22,6 @@ protected:
 public:
   using Super::Super;
 
-
   Enable_Simple_Update_Routine() { }
 
   Enable_Simple_Update_Routine(const Enable_Simple_Update_Routine &r)
@@ -47,6 +46,15 @@ public:
 
   XI_PROP_EXPORT((Time_Elpased, time_elpased));
 };
+
+namespace details {
+
+XI_GENERATE_HAS_MEMBER_DETECTOR(before_update_routine);
+XI_GENERATE_HAS_MEMBER_DETECTOR(after_update_routine);
+
+XI_GENERATE_HAS_TYPEDEF_DETECTOR(update_once);
+
+} // namespace details
 
 template <class S, class With>
 class Enable_Stated_Update_Routine : public S
@@ -115,17 +123,13 @@ private:
 public:
   virtual void update(const Update_Details &ud) override final
   {
-    // TODO: Add sfinae checker 2016-03-02 22:02:32
-    using Use_Before_Routine = typename Client::Use_Before_Routine;
-    using Use_After_Routine  = typename Client::Use_After_Routine;
+    using has_before_update_routine = details::has_member_before_update_routine_checker<Client>;
+    using has_after_update_routine  = details::has_member_after_update_routine_checker<Client>;
+    using update_once               = details::has_typedef_update_once_checker<Client>;
 
-    constexpr bool once_policy =
-      std::is_same< typename Client::Update_Once
-                  , std::true_type>::value;
+    invoke_before_routine(ud, has_before_update_routine());
 
-    invoke_before_routine(ud, Use_Before_Routine());
-
-    if (!once_policy || !updated_this_frame(ud))
+    if (!update_once::value || !updated_this_frame(ud))
     {
       frame += ud.delta_frame;
       token  = ud.frame;
@@ -135,37 +139,10 @@ public:
       static_cast<Client *>(this)->update_routine(ud);
     }
 
-    invoke_after_routine(ud, Use_After_Routine());
+    invoke_after_routine(ud, has_after_update_routine());
   }
 };
 
-class Simple_Actor : public chain
-                     < With<Actor, Simple_Actor>
-                     , addin<Enable_Simple_Update_Routine>
-                     >
-{
-public:
-  virtual void update_routine(const Update_Details &ud) = 0;
-};
-
-class Controller : public chain
-                   < With<Actor, Controller>
-                   , addin<Enable_Stated_Update_Routine>
-                   >
-{
-public:
-  using Update_Once        = std::true_type;
-  using Use_After_Routine  = std::true_type;
-  using Use_Before_Routine = std::true_type;
-public:
-  using Super::Super;
-
-  virtual void update_routine(const Update_Details &ud) = 0;
-
-  // 默认为空
-  virtual void before_update_routine(const Update_Details &ud);
-  virtual void after_update_routine(const Update_Details &ud);
-};
 
 } // namespace Xi
 

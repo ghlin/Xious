@@ -138,6 +138,58 @@
   friend class XI_IMPL_CLASS(Class); \
   Ptr<XI_IMPL_CLASS(Class)> pimpl
 
+
+// Member Detector
+// from https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Member_Detector
+
+#define XI_GENERATE_HAS_MEMBER_DETECTOR(member)                     \
+namespace details {                                                 \
+template <class T>                                                  \
+struct XI_JOIN(has_member_, member, _checker)                       \
+{                                                                   \
+  struct fallback { int member; };                                  \
+  struct derived : public T, fallback { };                          \
+                                                                    \
+  template <class U>                                                \
+  static std::false_type test(decltype(U::member) *);               \
+  template <class U>                                                \
+  static std::true_type  test(...);                                 \
+                                                                    \
+  using result_type = decltype(test<derived>(nullptr));             \
+                                                                    \
+  constexpr static bool value = result_type::value;                 \
+};                                                                  \
+} /* namespace details */                                           \
+                                                                    \
+template <class T>                                                  \
+struct XI_JOIN(has_member_, member, _checker)                       \
+  : details::XI_JOIN(has_member_, member, _checker)<T>::result_type \
+{ }
+
+#define XI_GENERATE_HAS_TYPEDEF_DETECTOR(type)                     \
+namespace details {                                                \
+template <class T>                                                 \
+struct XI_JOIN(has_typedef_, type, _checker)                       \
+{                                                                  \
+  struct fallback { struct type { }; };                            \
+  struct derived : public T, fallback { };                         \
+                                                                   \
+  template <class U>                                               \
+  static std::false_type test(typename U::type *);                 \
+  template <class U>                                               \
+  static std::true_type  test(...);                                \
+                                                                   \
+  using result_type = decltype(test<derived>(nullptr));            \
+                                                                   \
+  constexpr static bool value = result_type::value;                \
+};                                                                 \
+} /* namespace details */                                          \
+                                                                   \
+template <class T>                                                 \
+struct XI_JOIN(has_typedef_, type, _checker)                       \
+  : details::XI_JOIN(has_typedef_, type, _checker)<T>::result_type \
+{ }
+
 // }}}
 
 #endif // end of include guard: PP_H_INCLUDED_PI681K2O

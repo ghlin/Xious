@@ -1,25 +1,22 @@
 #include "task.h"
 
-using namespace Xi;
+namespace Xi {
 
-int main(int argc, const char **argv)
+bool Task::complete() const
 {
-  (void)argc;
-  (void)argv;
-
-  Task *tsk;
-  std::vector<Handle<Task>> t
-    =
-    {
-      handle_cast<Task>(tsk->clone()),
-      handle_cast<Task>(tsk->clone()),
-      handle_cast<Task>(tsk->clone()),
-      handle_cast<Task>(tsk->clone()),
-      handle_cast<Task>(tsk->clone()),
-    };
-
-  auto r = t;
-
-  return 0;
+  return false;
 }
+
+bool Task::can_rewind() const
+{
+  return false;
+}
+
+void Phased_Task::before_update_routine(const Update_Details &)
+{ }
+
+void Phased_Task::after_update_routine(const Update_Details &)
+{ }
+
+} // namespace Xi
 

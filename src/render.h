@@ -5,7 +5,7 @@
 
 namespace Xi {
 
-class Render : public Extends<Controller>
+class Render : public Extends<Task>
 {
 public:
   virtual void draw(const Update_Details &ud) = 0;
