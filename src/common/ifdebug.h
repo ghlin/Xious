@@ -24,6 +24,8 @@
 #define Xi_die(y)                                 \
   do { throw std::runtime_error(Xi::u_stringify(y)); } while (false)
 
+#define Xi_debug_if(x)   if (!(x)) { } else
+
 #if defined(XI_DEBUG)
 /*
  * DEBUG MODE HERE

@@ -7,6 +7,66 @@ namespace Xi {
 
 namespace math {
 
+constexpr static float_t epsilon = 0.000001f;
+
+static inline
+bool eq(float_t lhs, float_t rhs)
+{
+  return std::abs(lhs - rhs) < epsilon;
+}
+
+static inline
+bool eq(vec_t lhs, vec_t rhs)
+{
+  return eq(lhs.x, rhs.x) && eq(lhs.y, rhs.y);
+}
+
+static inline
+bool is_zero(float_t v)
+{
+  return eq(v, 0);
+}
+
+static inline
+bool is_zero(vec_t v)
+{
+  return eq(v, { 0.0f, 0.0f });
+}
+
+static inline
+bool is_parallel(vec_t a, vec_t b)
+{
+  return eq(glm::normalize(a), glm::normalize(b));
+}
+
+static inline
+vec_t intersection_point(vec_t lpoint, vec_t lnormal,
+                         vec_t rpoint, vec_t rnormal)
+{
+  if (math::is_parallel(lnormal, rnormal))
+    return { };
+
+  auto C1 =  math::cross_product(lnormal, lpoint),
+       C2 =  math::cross_product(rnormal, rpoint),
+       D  = -math::cross_product(lnormal, rnormal),
+       x  =  math::cross_product({ lnormal.x, rnormal.x }, { C1, C2 }) / D,
+       y  = -math::cross_product({ C1, C2 }, { lnormal.y, rnormal.y }) / D;
+
+  return { x, y };
+}
+
+static inline
+bool same_sign(float_t a, float_t b)
+{
+  return (a > 0 && b > 0) || (a < 0 && b < 0);
+}
+
+static inline
+bool diff_sign(float_t a, float_t b)
+{
+  return !same_sign(a, b);
+}
+
 /*
  * A: (a, b), B: (c, d)
  * A x B =>

@@ -8,14 +8,18 @@ namespace Xi {
 struct Update_Details
 {
   Instance       *instance;
+
   frame_t         frame;
   frame_t         delta_frame;
   float_t         time_elpased;
   float_t         delta_time_elpased;
 
-  Entity         *focus;
+  Entity         *target;
   Entity         *charactor;
+
   Chapter        *chapter;
+
+  vec_t           stage;
 };
 
 } // namespace Xi

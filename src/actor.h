@@ -47,14 +47,10 @@ public:
   XI_PROP_EXPORT((Time_Elpased, time_elpased));
 };
 
-namespace details {
+XI_GENERATE_MEMBER_DETECTOR(before_update_routine);
+XI_GENERATE_MEMBER_DETECTOR(after_update_routine);
 
-XI_GENERATE_HAS_MEMBER_DETECTOR(before_update_routine);
-XI_GENERATE_HAS_MEMBER_DETECTOR(after_update_routine);
-
-XI_GENERATE_HAS_TYPEDEF_DETECTOR(update_once);
-
-} // namespace details
+XI_GENERATE_TYPEDEF_DETECTOR(update_once);
 
 template <class S, class With>
 class Enable_Stated_Update_Routine : public S
@@ -123,6 +119,7 @@ private:
 public:
   virtual void update(const Update_Details &ud) override final
   {
+
     using has_before_update_routine = details::has_member_before_update_routine_checker<Client>;
     using has_after_update_routine  = details::has_member_after_update_routine_checker<Client>;
     using update_once               = details::has_typedef_update_once_checker<Client>;

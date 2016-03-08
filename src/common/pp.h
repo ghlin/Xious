@@ -142,8 +142,8 @@
 // Member Detector
 // from https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Member_Detector
 
-#define XI_GENERATE_HAS_MEMBER_DETECTOR(member)                     \
-namespace details {                                                 \
+#define _XI_GENERATE_MEMBER_DETECTOR_2(member, ns)                  \
+namespace ns {                                                      \
 template <class T>                                                  \
 struct XI_JOIN(has_member_, member, _checker)                       \
 {                                                                   \
@@ -159,15 +159,15 @@ struct XI_JOIN(has_member_, member, _checker)                       \
                                                                     \
   constexpr static bool value = result_type::value;                 \
 };                                                                  \
-} /* namespace details */                                           \
+} /* namespace ns */                                                \
                                                                     \
 template <class T>                                                  \
 struct XI_JOIN(has_member_, member, _checker)                       \
-  : details::XI_JOIN(has_member_, member, _checker)<T>::result_type \
+  : ns::XI_JOIN(has_member_, member, _checker)<T>::result_type      \
 { }
 
-#define XI_GENERATE_HAS_TYPEDEF_DETECTOR(type)                     \
-namespace details {                                                \
+#define _XI_GENERATE_TYPEDEF_DETECTOR_2(type, ns)                  \
+namespace ns {                                                     \
 template <class T>                                                 \
 struct XI_JOIN(has_typedef_, type, _checker)                       \
 {                                                                  \
@@ -183,12 +183,24 @@ struct XI_JOIN(has_typedef_, type, _checker)                       \
                                                                    \
   constexpr static bool value = result_type::value;                \
 };                                                                 \
-} /* namespace details */                                          \
+} /* namespace ns */                                               \
                                                                    \
 template <class T>                                                 \
 struct XI_JOIN(has_typedef_, type, _checker)                       \
-  : details::XI_JOIN(has_typedef_, type, _checker)<T>::result_type \
+  : ns::XI_JOIN(has_typedef_, type, _checker)<T>::result_type      \
 { }
+
+
+#define _XI_GENERATE_MEMBER_DETECTOR_1(member) _XI_GENERATE_MEMBER_DETECTOR_2(member, details)
+#define _XI_GENERATE_TYPEDEF_DETECTOR_1(type)  _XI_GENERATE_TYPEDEF_DETECTOR_2(type, details)
+
+#define XI_GENERATE_MEMBER_DETECTOR(__VA_ARGS__) \
+  XI_JOIN(_XI_GENERATE_MEMBER_DETECTOR_, XI_NARGS(__VA_ARGS__))(__VA_ARGS__)
+
+#define XI_GENERATE_TYPEDEF_DETECTOR(__VA_ARGS__) \
+  XI_JOIN(_XI_GENERATE_TYPEDEF_DETECTOR_, XI_NARGS(__VA_ARGS__))(__VA_ARGS__)
+
+
 
 // }}}
 
