@@ -12,6 +12,9 @@ bool Task::can_rewind() const
   return false;
 }
 
+void Task::rewind()
+{ }
+
 void Phased_Task::before_update_routine(const Update_Details &)
 { }
 

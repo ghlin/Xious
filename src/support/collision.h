@@ -4,18 +4,7 @@
 #include "../config.h"
 #include "../util/math.h"
 
-
 namespace Xi {
-
-constexpr bool colli_debug_on =
-#ifdef XI_COLLISION_DEBUG
-  true
-#else
-  false
-#endif
-  ;
-
-#define on_debug Xi_debug_if (colli_debug_on)
 
 enum Collision_Model_Type : uint32_t
 {
@@ -34,6 +23,7 @@ struct Collision_Model_Data
     vec_t centre;
     vec_t begin_point;
     vec_t point;
+    vec_t v1;
   };
 
   union {
@@ -41,7 +31,16 @@ struct Collision_Model_Data
     vec_t   end_point;
     vec_t   border;
     float_t radius;
+
+    vec_t   v2;
+    float_t f2;
   };
+
+  Collision_Model_Data(const vec_t v1, const vec_t v2)
+    : v1(v1), v2(v2) { }
+
+  Collision_Model_Data(const vec_t v1, float_t f2)
+    : v1(v1), f2(f2) { }
 };
 
 struct Collision_Model
@@ -50,28 +49,34 @@ struct Collision_Model
   Collision_Model_Data data;
 };
 
-template <uint32_t E>
+namespace details {
+template <uint32_t E, uint32_t T>
 struct Model_Tag
 {
-  enum : uint32_t { prio = E };
+  struct prio { enum uint32_t { value = E }; };
+  struct take { enum uint32_t { value = T }; };
 };
 
-using Point_Model_Tag   = Model_Tag<CMT_Point>;
-using Line_Model_Tag    = Model_Tag<CMT_Line>;
-using Ray_Model_Tag     = Model_Tag<CMT_Ray>;
-using Segment_Model_Tag = Model_Tag<CMT_Segment>;
-using Box_Model_Tag     = Model_Tag<CMT_Box>;
-using Circle_Model_Tag  = Model_Tag<CMT_Circle>;
+using Point_Model_Tag   = Model_Tag<CMT_Point, 1>;
+using Line_Model_Tag    = Model_Tag<CMT_Line, 2>;
+using Ray_Model_Tag     = Model_Tag<CMT_Ray, 2>;
+using Segment_Model_Tag = Model_Tag<CMT_Segment, 2>;
+using Box_Model_Tag     = Model_Tag<CMT_Box, 2>;
+using Circle_Model_Tag  = Model_Tag<CMT_Circle, 2>;
 
-constexpr static Point_Model_Tag   point_model_tag   = { };
-constexpr static Line_Model_Tag    line_model_tag    = { };
-constexpr static Ray_Model_Tag     ray_model_tag     = { };
-constexpr static Segment_Model_Tag segment_model_tag = { };
-constexpr static Box_Model_Tag     box_model_tag     = { };
-constexpr static Circle_Model_Tag  circle_model_tag  = { };
+} // namespace details
+
+constexpr static details::Point_Model_Tag   point_model_tag   = { };
+constexpr static details::Line_Model_Tag    line_model_tag    = { };
+constexpr static details::Ray_Model_Tag     ray_model_tag     = { };
+constexpr static details::Segment_Model_Tag segment_model_tag = { };
+constexpr static details::Box_Model_Tag     box_model_tag     = { };
+constexpr static details::Circle_Model_Tag  circle_model_tag  = { };
+
+namespace details {
 
 /**
- * Point_Model_Tag x Point_Model_Tag
+ * Point x Point
  */
 static inline
 bool is_colliding(const Point_Model_Tag &,
@@ -83,7 +88,7 @@ bool is_colliding(const Point_Model_Tag &,
 }
 
 /**
- * Point_Model_Tag x Line_Model_Tag
+ * Point x Line
  */
 static inline
 bool is_colliding(const Point_Model_Tag &,
@@ -92,21 +97,11 @@ bool is_colliding(const Point_Model_Tag &,
                   vec_t rpoint,
                   vec_t rdirection)
 {
-  on_debug
-  {
-    Xi_log("checking (%f, %f) on (%f, %f) (%f %f)",
-           lpoint.x, lpoint.y,
-           rpoint.x, rpoint.y, rdirection.x, rdirection.y);
-
-    auto C = math::cross_product(rpoint - lpoint, rdirection);
-    Xi_log(" cross -> %f", C);
-  }
-
   return math::is_zero(math::cross_product(rpoint - lpoint, rdirection));
 }
 
 /**
- * Point_Model_Tag x Ray_Model_Tag
+ * Point x Ray
  */
 static inline
 bool is_colliding(const Point_Model_Tag &,
@@ -115,19 +110,12 @@ bool is_colliding(const Point_Model_Tag &,
                   vec_t rpoint,
                   vec_t rdirection)
 {
-  on_debug
-  {
-    Xi_log("checking (%f, %f) on (%f, %f) (%f %f)",
-           lpoint.x, lpoint.y,
-           rpoint.x, rpoint.y, rdirection.x, rdirection.y);
-  }
-
   return is_colliding(point_model_tag, line_model_tag, lpoint, rpoint, rdirection)
-    &&   math::dot_product(rpoint - lpoint, rdirection) < 0;
+    &&   math::same_dir_approx_i(lpoint - rpoint, rdirection);
 }
 
 /**
- * Point_Model_Tag x Segment_Model_Tag
+ * Point x Segment
  */
 static inline
 bool is_colliding(const Point_Model_Tag   &,
@@ -136,12 +124,12 @@ bool is_colliding(const Point_Model_Tag   &,
                   vec_t rbegin_point,
                   vec_t rend_point)
 {
-  return is_colliding(point_model_tag, ray_model_tag, lpoint, rbegin_point, rbegin_point - rend_point)
-    &&   is_colliding(point_model_tag, ray_model_tag, lpoint, rbegin_point, rend_point - rbegin_point);
+  return is_colliding(point_model_tag, ray_model_tag, lpoint, rbegin_point, rend_point - rbegin_point)
+    &&   is_colliding(point_model_tag, ray_model_tag, lpoint, rbegin_point, rbegin_point - rend_point);
 }
 
 /**
- * Point_Model_Tag x Box_Model_Tag
+ * Point x Box
  */
 static inline
 bool is_colliding(const Point_Model_Tag &,
@@ -162,7 +150,7 @@ bool is_colliding(const Point_Model_Tag &,
 }
 
 /**
- * Point_Model_Tag x Circle_Model_Tag
+ * Point x Circle
  */
 static inline
 bool is_colliding(const   Point_Model_Tag  &,
@@ -171,13 +159,11 @@ bool is_colliding(const   Point_Model_Tag  &,
                   vec_t   rcentre,
                   float_t radius)
 {
-  auto r = rcentre - lpoint;
-
-  return radius * radius >= r.x * r.x + r.y * r.y;
+  return radius * radius >= math::length_sq(rcentre - lpoint);
 }
 
 /**
- * Line_Model_Tag x Line_Model_Tag
+ * Line x Line
  */
 static inline
 bool is_colliding(const Line_Model_Tag &,
@@ -187,12 +173,12 @@ bool is_colliding(const Line_Model_Tag &,
                   vec_t rpoint,
                   vec_t rdirection)
 {
-  return math::is_parallel(ldirection, rdirection)
-    &&  !math::is_parallel(ldirection, lpoint - rpoint);
+  return !math::is_parallel(ldirection, rdirection)
+    &&   !math::is_parallel(ldirection, lpoint - rpoint);
 }
 
 /**
- * Line_Model_Tag x Ray_Model_Tag
+ * Line x Ray
  */
 static inline
 bool is_colliding(const Line_Model_Tag &,
@@ -207,11 +193,11 @@ bool is_colliding(const Line_Model_Tag &,
 
   auto cross = math::intersection_point(lpoint, ldirection, rpoint, rdirection);
 
-  return math::cross_product(cross - lpoint, ldirection) <= 0;
+  return math::same_dir_approx_i(cross - lpoint, ldirection);
 }
 
 /**
- * Line_Model_Tag x Segment_Model_Tag
+ * Line x Segment
  */
 static inline
 bool is_colliding(const Line_Model_Tag    &,
@@ -221,16 +207,16 @@ bool is_colliding(const Line_Model_Tag    &,
                   vec_t rbegin_point,
                   vec_t rend_point)
 {
-  if (math::is_parallel(ldirection, rbegin_point - rend_point))
+  if (math::is_parallel(ldirection, rend_point - rbegin_point))
     return !math::is_parallel(ldirection, rbegin_point - lpoint);
 
-  auto cross = math::intersection_point(lpoint, ldirection, rbegin_point, rbegin_point - rend_point);
+  auto cross = math::intersection_point(lpoint, ldirection, rbegin_point, rend_point - rbegin_point);
 
-  return math::diff_sign(cross - rbegin_point, cross - rend_point);
+  return math::same_dir_approx_i(cross - rbegin_point, cross - rend_point);
 }
 
 /**
- * Line_Model_Tag x Box_Model_Tag
+ * Line x Box
  */
 static inline
 bool is_colliding(const Line_Model_Tag &,
@@ -258,7 +244,7 @@ bool is_colliding(const Line_Model_Tag &,
 }
 
 /**
- * Line_Model_Tag x Circle_Model_Tag
+ * Line x Circle
  */
 static inline
 bool is_colliding(const   Line_Model_Tag   &,
@@ -270,11 +256,11 @@ bool is_colliding(const   Line_Model_Tag   &,
 {
   auto altitude = rcentre - math::intersection_point(lpoint, ldirection, rcentre, { -ldirection.y, ldirection.x });
 
-  return altitude.x * altitude.x + altitude.y * altitude.y <= rradius * rradius;
+  return math::length_sq(altitude) <= rradius * rradius;
 }
 
 /**
- * Ray_Model_Tag x Ray_Model_Tag
+ * Ray x Ray
  */
 static inline
 bool is_colliding(const Ray_Model_Tag &,
@@ -289,8 +275,8 @@ bool is_colliding(const Ray_Model_Tag &,
 
   vec_t cross = math::intersection_point(lpoint, ldirection, rpoint, rdirection);
 
-  if ( math::dot_product(cross - lpoint, ldirection) < 0
-    || math::dot_product(cross - rpoint, rdirection) < 0)
+  if ( math::diff_dir_approx(cross - lpoint, ldirection)
+    || math::diff_dir_approx(cross - rpoint, rdirection))
   {
     return false;
   }
@@ -299,7 +285,7 @@ bool is_colliding(const Ray_Model_Tag &,
 }
 
 /**
- * Ray_Model_Tag x Segment_Model_Tag
+ * Ray x Segment
  */
 
 static inline
@@ -313,16 +299,16 @@ bool is_colliding(const Ray_Model_Tag     &,
   if (math::is_parallel(ldirection, rbegin_point - rend_point))
     return !math::is_parallel(ldirection, rbegin_point - lpoint);
 
-  auto cross = math::intersection_point(lpoint, ldirection, rbegin_point, rbegin_point - rend_point);
+  auto cross = math::intersection_point(lpoint, ldirection, rbegin_point, rend_point - rbegin_point);
 
-  if (math::cross_product(cross - lpoint, ldirection) > 0)
+  if (math::same_dir_approx_i(cross - lpoint, ldirection))
     return true;
 
-  return math::diff_sign(cross - rbegin_point, cross - rend_point);
+  return math::same_dir_approx_i(cross - rbegin_point, cross - rend_point);
 }
 
 /**
- * Ray_Model_Tag x Box_Model_Tag
+ * Ray x Box
  */
 static inline
 bool is_colliding(const Ray_Model_Tag &,
@@ -350,7 +336,7 @@ bool is_colliding(const Ray_Model_Tag &,
 }
 
 /**
- * Ray_Model_Tag x Circle_Model_Tag
+ * Ray x Circle
  */
 static inline
 bool is_colliding(const   Ray_Model_Tag    &,
@@ -365,14 +351,14 @@ bool is_colliding(const   Ray_Model_Tag    &,
 
   vec_t cross = math::intersection_point(lpoint, ldirection, rcentre, { -ldirection.y, ldirection.x });
 
-  if (math::cross_product(lpoint - cross, lnormal) < 0)
+  if (math::same_dir_approx_i(cross - lpoint, ldirection))
     return true;
 
   return false;
 }
 
 /**
- * Segment_Model_Tag x Segment_Model_Tag
+ * Segment x Segment
  */
 static inline
 bool is_colliding(const Segment_Model_Tag &,
@@ -382,6 +368,7 @@ bool is_colliding(const Segment_Model_Tag &,
                   vec_t rbegin_point,
                   vec_t rend_point)
 {
+  // TODO: math::is_intersect 2016-03-11 19:48:25
   return math::is_intersect(lbegin_point, lend_point, rbegin_point, rend_point);
 }
 
@@ -396,6 +383,12 @@ bool is_colliding(const Segment_Model_Tag &,
                   vec_t rcentre,
                   vec_t rborder)
 {
+  if ( is_colliding(point_model_tag, box_model_tag, lbegin_point, rcentre, rborder)
+    || is_colliding(point_model_tag, box_model_tag, lend_point, rcentre, rborder))
+  {
+    return true;
+  }
+
   const vec_t vertices[] =
   { { rcentre.x - rborder.x, rcentre.y + rborder.y }
   , { rcentre.x + rborder.x, rcentre.y + rborder.y }
@@ -414,7 +407,7 @@ bool is_colliding(const Segment_Model_Tag &,
 }
 
 /**
- * Segment_Model_Tag x Circle_Model_Tag
+ * Segment x Circle
  */
 static inline
 bool is_colliding(const   Segment_Model_Tag &,
@@ -430,8 +423,8 @@ bool is_colliding(const   Segment_Model_Tag &,
     return true;
   }
 
-  if ( is_colliding(ray_model_tag, circle_model_tag, lbegin_point, lbegin_point - lend_point, rcentre, rradius)
-    && is_colliding(ray_model_tag, circle_model_tag, lend_point, lend_point - lbegin_point, rcentre, rradius))
+  if ( is_colliding(ray_model_tag, circle_model_tag, lbegin_point, lend_point - lbegin_point, rcentre, rradius)
+    && is_colliding(ray_model_tag, circle_model_tag, lend_point, lbegin_point - lend_point, rcentre, rradius))
   {
     return true;
   }
@@ -440,7 +433,7 @@ bool is_colliding(const   Segment_Model_Tag &,
 }
 
 /**
- * Box_Model_Tag x Box_Model_Tag
+ * Box x Box
  */
 static inline
 bool is_colliding(const Box_Model_Tag &,
@@ -462,7 +455,7 @@ bool is_colliding(const Box_Model_Tag &,
 }
 
 /**
- * Box_Model_Tag x Circle_Model_Tag
+ * Box x Circle
  */
 static inline
 bool is_colliding(const   Box_Model_Tag    &,
@@ -479,6 +472,14 @@ bool is_colliding(const   Box_Model_Tag    &,
   , { lcentre.x + lborder.x, lcentre.y - lborder.y }
   , { lcentre.x - lborder.x, lcentre.y - lborder.y } };
 
+  if ( is_colliding(point_model_tag, circle_model_tag, vertices[0], rcentre, rradius)
+    || is_colliding(point_model_tag, circle_model_tag, vertices[1], rcentre, rradius)
+    || is_colliding(point_model_tag, circle_model_tag, vertices[2], rcentre, rradius)
+    || is_colliding(point_model_tag, circle_model_tag, vertices[3], rcentre, rradius))
+  {
+    return true;
+  }
+
   if ( is_colliding(segment_model_tag, circle_model_tag, vertices[0], vertices[1], rcentre, rradius)
     || is_colliding(segment_model_tag, circle_model_tag, vertices[1], vertices[2], rcentre, rradius)
     || is_colliding(segment_model_tag, circle_model_tag, vertices[2], vertices[3], rcentre, rradius)
@@ -493,7 +494,7 @@ bool is_colliding(const   Box_Model_Tag    &,
 }
 
 /**
- * Circle_Model_Tag x Circle_Model_Tag
+ * Circle x Circle
  */
 static inline
 bool is_colliding(const   Circle_Model_Tag &,
@@ -503,12 +504,77 @@ bool is_colliding(const   Circle_Model_Tag &,
                   vec_t   rcentre,
                   float_t rradius)
 {
-  auto dist2 = lcentre - rcentre;
-
-  return dist2.x * dist2.x + dist2.y * dist2.y <= lradius * lradius + rradius * rradius;
+  return math::length_sq(lcentre - rcentre) <= lradius * lradius + rradius * rradius;
 }
 
 
+template <class M1, class M2, bool = (uint32_t(M1::prio::value) < uint32_t(M2::prio::value))>
+struct Collision_Test_Dispatch_Helper
+{
+  template <class ...Args>
+  static inline
+  bool apply(const M1   &m1,
+             const M2   &m2,
+             const Args &...args)
+  {
+    return is_colliding(m1, m2, args...);
+  }
+};
+
+template <unsigned N>
+struct Shift2;
+
+template <>
+struct Shift2<0u>
+{
+  template <class M1, class M2, typename ...Args>
+  static inline
+  bool apply(const M1   &m1,
+             const M2   &m2,
+             const Args &...args)
+  {
+    return is_colliding(m1, m2, args...);
+  }
+};
+
+template <unsigned N>
+struct Shift2
+{
+  template <class M1, class M2, typename A1, typename ...Args>
+  static inline
+  bool apply(const M1   &m1,
+             const M2   &m2,
+             const A1   &a1,
+             const Args &...args)
+  {
+    return Shift2<N - 1>::template apply(m1, m2, args..., a1);
+  }
+};
+
+template <class M1, class M2>
+struct Collision_Test_Dispatch_Helper<M1, M2, false>
+{
+
+  template <class ...Args>
+  static inline
+  bool apply(const M1   &m1,
+             const M2   &m2,
+             const Args &...args)
+  {
+    return Shift2<M1::take::value>::template apply(m2, m1, args...);
+  }
+};
+
+} // namespace details
+
+// XXX: 2016-03-12 15:16:17
+template <class M1, class M2, class ...Args>
+static inline bool is_colliding(const M1   &m1,
+                                const M2   &m2,
+                                const Args &...args)
+{
+  return details::Collision_Test_Dispatch_Helper<M1, M2>::template apply(m1, m2, args...);
+}
 
 } // namespace Xi
 

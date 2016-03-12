@@ -47,10 +47,12 @@ public:
   XI_PROP_EXPORT((Time_Elpased, time_elpased));
 };
 
+namespace details {
 XI_GENERATE_MEMBER_DETECTOR(before_update_routine);
 XI_GENERATE_MEMBER_DETECTOR(after_update_routine);
 
 XI_GENERATE_TYPEDEF_DETECTOR(update_once);
+} // namespace details
 
 template <class S, class With>
 class Enable_Stated_Update_Routine : public S

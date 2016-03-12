@@ -16,9 +16,9 @@
 
 #define Xi_log(...)   Xi::tracef(XI_THIS_LOCATION(), __VA_ARGS__)
 
-#define Xi_runtime_check(expr)                    \
-  do { if (!(expr)) throw std::runtime_error(     \
-    "Assertion failed : `" XI_STRINGIFY(p) "'!"); \
+#define Xi_runtime_check(expr)                       \
+  do { if (!(expr)) throw std::runtime_error(        \
+    "Assertion failed : `" XI_STRINGIFY(expr) "'!"); \
   } while (false)
 
 #define Xi_die(y)                                 \

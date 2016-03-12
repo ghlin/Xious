@@ -39,34 +39,6 @@ bool is_parallel(vec_t a, vec_t b)
   return eq(glm::normalize(a), glm::normalize(b));
 }
 
-static inline
-vec_t intersection_point(vec_t lpoint, vec_t lnormal,
-                         vec_t rpoint, vec_t rnormal)
-{
-  if (math::is_parallel(lnormal, rnormal))
-    return { };
-
-  auto C1 =  math::cross_product(lnormal, lpoint),
-       C2 =  math::cross_product(rnormal, rpoint),
-       D  = -math::cross_product(lnormal, rnormal),
-       x  =  math::cross_product({ lnormal.x, rnormal.x }, { C1, C2 }) / D,
-       y  = -math::cross_product({ C1, C2 }, { lnormal.y, rnormal.y }) / D;
-
-  return { x, y };
-}
-
-static inline
-bool same_sign(float_t a, float_t b)
-{
-  return (a > 0 && b > 0) || (a < 0 && b < 0);
-}
-
-static inline
-bool diff_sign(float_t a, float_t b)
-{
-  return !same_sign(a, b);
-}
-
 /*
  * A: (a, b), B: (c, d)
  * A x B =>
@@ -89,6 +61,59 @@ float_t dot_product(const vec_t &A, const vec_t &B)
 }
 
 static inline
+vec_t intersection_point(vec_t lpoint, vec_t lnormal,
+                         vec_t rpoint, vec_t rnormal)
+{
+  if (math::is_parallel(lnormal, rnormal))
+    return { };
+
+  auto C1 = math::cross_product(lnormal, lpoint),
+       C2 = math::cross_product(rnormal, rpoint),
+       D  = math::cross_product(rnormal, lnormal),
+       x  = math::cross_product({ lnormal.x, rnormal.x }, { C1, C2 }) / D,
+       y  = math::cross_product({ lnormal.y, rnormal.y }, { C1, C2 }) / D;
+
+  return { x, y };
+}
+
+static inline
+bool same_dir_approx(const vec_t &A, const vec_t &B)
+{
+  return dot_product(A, B) > 0;
+}
+
+static inline
+bool diff_dir_approx(const vec_t &A, const vec_t &B)
+{
+  return dot_product(A, B) < 0;
+}
+
+static inline
+bool same_dir_approx_i(const vec_t &A, const vec_t &B)
+{
+  return dot_product(A, B) >= 0;
+}
+
+static inline
+bool diff_dir_approx_i(const vec_t &A, const vec_t &B)
+{
+  return dot_product(A, B) <= 0;
+}
+
+
+static inline
+bool same_sign(float_t a, float_t b)
+{
+  return (a > 0 && b > 0) || (a < 0 && b < 0);
+}
+
+static inline
+bool diff_sign(float_t a, float_t b)
+{
+  return !same_sign(a, b);
+}
+
+static inline
 bool is_intersect(const vec_t &A1, const vec_t &A2,
                   const vec_t &B1, const vec_t &B2)
 {
@@ -105,11 +130,17 @@ bool is_intersect(const vec_t &A1, const vec_t &A2,
 }
 
 static inline
+float_t length_sq(const vec_t &v)
+{
+  return v.x * v.x + v.y * v.y;
+}
+
+static inline
 bool is_inside(const vec_t &point,
                const vec_t &centre,
                float_t      radius)
 {
-  return glm::distance(point, centre) < radius;
+  return glm::distance(point, centre) <= radius;
 }
 
 static inline
@@ -148,22 +179,28 @@ bool is_inside(const vec_t &P,
 }
 
 static inline
-float_t side(const vec_t &point,
-             const vec_t &A1, const vec_t &A2)
+float_t side(const vec_t &lpoint,
+             const vec_t &rpoint, const vec_t &rdirection)
 {
-  return cross_product(point - A1, point - A2);
+  return cross_product(lpoint - rpoint, lpoint - rpoint - rdirection);
 }
-
 
 static inline
 float_t angle(const vec_t &v)
 {
-  auto tangent = v.y / v.x;
+  if (is_zero(v))
+    return 0;
 
-  if (std::isnan(tangent))
-    return v.y > 0 ? M_PI / 2 : -M_PI / 2;
+  return std::atan(v.y / v.x) + (v.x > 0 ? 0 : M_PI);
+}
 
-  return std::atan(tangent) + (v.x > 0 ? 0 : M_PI);
+static inline
+float_t angle(const vec_t &v, float_t alt)
+{
+  if (is_zero(v))
+    return alt;
+
+  return std::atan(v.y / v.x) + (v.x > 0 ? 0 : M_PI);
 }
 
 } // namespace math
