@@ -121,7 +121,7 @@ Str xprintf_impl(const Args &...fmt_and_args)
 
   constexpr size_t DEFAULT_CAPACITY = 512;
 
-  debug_check (size <= DEFAULT_CAPACITY);
+  Xi_debug_check (size <= DEFAULT_CAPACITY);
 
   char buff[DEFAULT_CAPACITY + 1];
   std::snprintf(buff, DEFAULT_CAPACITY, fmt_and_args...);

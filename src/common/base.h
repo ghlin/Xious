@@ -405,6 +405,46 @@ public:
   }
 
   ~RAII_Helper() { if (closure) closure(); }
+
+  template <typename T, class D>
+  inline T *manage(T *ptr, D &&deletor)
+  {
+    auto old = std::move(closure);
+    closure  = [ptr, pre = std::move(old), deletor = std::forward<D>(deletor)]
+    {
+      deletor(ptr);
+      if (pre)
+        pre();
+    };
+
+    return ptr;
+  }
+
+  template <typename T, class D>
+  inline const T *manage(const T *ptr, D &&deletor)
+  {
+    auto old = std::move(closure);
+    closure  = [ptr, pre = std::move(old), deletor = std::forward<D>(deletor)]
+    {
+      deletor(ptr);
+      if (pre)
+        pre();
+    };
+
+    return ptr;
+  }
+
+  template <typename T>
+  inline T *manage(T *ptr)
+  {
+    return manage(ptr, [] (T *ptr) { delete ptr; });
+  }
+
+  template <typename T>
+  inline const T *manage(const T *ptr)
+  {
+    return manage(ptr, [] (T *ptr) { delete ptr; });
+  }
 };
 
 struct RAII_Helper_Candy

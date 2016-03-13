@@ -42,8 +42,8 @@ attr_export void    bootstrap_finalize();
 #define XI_BOOTSTRAP_ON(path, deps)                            \
   namespace {                                                  \
   namespace XI_JOIN(bootstrap_add_task_, __LINE__) {           \
-  static void bootstrap_task(const Str_List &,                 \
-                             const Str &);                     \
+  static void bootstrap_task(const Xi::Str_List &,             \
+                             const Xi::Str &);                 \
   } }                                                          \
   XI_BOOTSTRAP_SCOPE()                                         \
   {                                                            \
@@ -52,14 +52,14 @@ attr_export void    bootstrap_finalize();
       XI_JOIN(bootstrap_add_task_, __LINE__)::bootstrap_task); \
   }                                                            \
   void XI_JOIN(bootstrap_add_task_, __LINE__)::bootstrap_task( \
-    attr_unused const Str_List &$args,                         \
-    attr_unused const Str &$path)
+    attr_unused const Xi::Str_List &$args,                     \
+    attr_unused const Xi::Str &$path)
 
 #define XI_BOOTSTRAP_CLEANUP(path, deps)                       \
   namespace {                                                  \
   namespace XI_JOIN(bootstrap_add_task_, __LINE__) {           \
-  static void bootstrap_task(const Str_List &,                 \
-                             const Str &);                     \
+  static void bootstrap_task(const Xi::Str_List &,             \
+                             const Xi::Str &);                 \
   } }                                                          \
   XI_BOOTSTRAP_SCOPE()                                         \
   {                                                            \
@@ -68,8 +68,8 @@ attr_export void    bootstrap_finalize();
       XI_JOIN(bootstrap_add_task_, __LINE__)::bootstrap_task); \
   }                                                            \
   void XI_JOIN(bootstrap_add_task_, __LINE__)::bootstrap_task( \
-    attr_unused const Str_List &$args,                         \
-    attr_unused const Str &$path)
+    attr_unused const Xi::Str_List &$args,                     \
+    attr_unused const Xi::Str &$path)
 
 
 #endif // end of include guard: BOOTSTRAP_H_INCLUDED_79FKHBZU

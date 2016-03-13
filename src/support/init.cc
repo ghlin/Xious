@@ -173,6 +173,8 @@ struct Node
 
   inline void resolve_one(Node *one)
   {
+    Xi_runtime_check(one->activated);
+
     if (auto pos = test_install(one))
     {
       install(one, *pos);
