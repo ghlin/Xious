@@ -61,8 +61,8 @@ struct Test_Dummy
 
 #define XI_UNIT_TEST_SCOPE XI_BOOTSTRAP_ON("run-unit-tests", { })
 
-#define XI_UNIT_TEST_CASE(token)                                                   \
-  if (auto _ = ::Xi::details::Test_Dummy(XI_STRINGIFY(token), XI_THIS_LOCATION())) \
+#define XI_UNIT_TEST_CASE(token)                                     \
+  if (auto _ = ::Xi::details::Test_Dummy(token, XI_THIS_LOCATION())) \
     for (int _ = 0; _ != 1; ++_)
 
 #define XI_UNIT_MARK_RESULT(result) \

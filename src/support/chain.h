@@ -28,7 +28,9 @@ struct chain_impl<With, details::End_Of_Chain>
 template <class ...R>
 struct With
 {
-  using Args   = std::tuple<R..., details::Dummy, details::Dummy, details::Dummy>;
+  using Dummy = details::Dummy;
+
+  using Args   = std::tuple<R..., Dummy, Dummy, Dummy>;
 
   using Super  = std::tuple_element_t<0, Args>;
   using Client = std::tuple_element_t<1, Args>;

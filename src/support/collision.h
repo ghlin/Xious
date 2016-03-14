@@ -2,7 +2,7 @@
 #define COLLISION_H_INCLUDED_I9WTG7HW
 
 #include "../config.h"
-#include "../util/math.h"
+#include "math.h"
 
 namespace Xi {
 

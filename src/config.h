@@ -11,9 +11,6 @@
 
 namespace Xi {
 
-using object_id_t = uint32_t; ///< 对象唯一id标识.
-using ref_count_t = uint64_t; ///< 引用计数, 非原子类型. \note 非原子类型.
-
 using tick_t  = uint32_t;  ///< 滴答.
 using frame_t = uint32_t;  ///< 帧id.
 

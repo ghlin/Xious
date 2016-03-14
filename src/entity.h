@@ -5,7 +5,6 @@
 
 namespace Xi {
 
-
 class Entity : public Extends<Controller>
 {
 public:
@@ -16,6 +15,8 @@ public:
     US_Skip,         ///< 不参与更新
   };
 
+  std::map<Str, Handle<Object>> components;
+
   Handle<Collider> collider;
   Handle<Render>   render;
   Handle<Task>     task;
@@ -25,6 +26,7 @@ public:
                 , (Render, render)
                 , (Task, task)
                 , (Update_Status, update_status)
+                , (Components, components)
                 );
 public:
   Entity() { }

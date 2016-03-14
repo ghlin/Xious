@@ -4,7 +4,7 @@
 #include "config.h"
 #include "variant.h"
 #include "property.h"
-#include "util/chain.h"
+#include "support/chain.h"
 
 namespace Xi {
 

@@ -85,16 +85,19 @@ void push_test(const Str &test,
   the_test_util.push(test, sl);
 }
 
-void pop_test() { the_test_util.pop(); }
+void pop_test()        { the_test_util.pop(); }
 void mark(bool result) { the_test_util.mark(result); }
-void mark_passed() { mark(true);  }
-void mark_failed() { mark(false); }
-bool marked() { return the_test_util.marked(); }
-bool marked_passed() { return the_test_util.result(); }
-bool marked_failed() { return !the_test_util.result(); }
-size_t total_tests() { return the_test_util.total; }
-size_t passed_tests() { return the_test_util.passed; }
-size_t failed_tests() { return the_test_util.failed; }
+
+void mark_passed()     { mark(true);  }
+void mark_failed()     { mark(false); }
+
+bool marked()          { return the_test_util.marked();  }
+bool marked_passed()   { return the_test_util.result();  }
+bool marked_failed()   { return !the_test_util.result(); }
+
+size_t total_tests()   { return the_test_util.total;  }
+size_t passed_tests()  { return the_test_util.passed; }
+size_t failed_tests()  { return the_test_util.failed; }
 
 const std::vector<Test_Unit> &get_all_tests()
 {
@@ -109,6 +112,21 @@ XI_BOOTSTRAP_CLEANUP("run-unit-tests", { })
          passed_tests(),
          total_tests(),
          100.0 * passed_tests() / total_tests());
+
+  if (failed_tests() != 0)
+  {
+    auto message = u_join(u_map(u_filter_cp(get_all_tests(),
+                                            [] (auto &test)
+                                            {
+                                              return !test.result;
+                                            }),
+                                [] (auto &test)
+                                {
+                                  return test.name + " from " + test.src_location.file + " : " + u_stringify(test.src_location.line);
+                                }), "\n");
+
+    Xi_log("Failed tests:\n%s", message);
+  }
 }
 
 } // namespace test_util

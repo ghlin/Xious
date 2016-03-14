@@ -2,7 +2,6 @@
 #define TASK_H_INCLUDED_5KI9LKLH
 
 #include "actor.h"
-#include "util/math.h"
 
 namespace Xi {
 
@@ -35,7 +34,7 @@ template <class S, class With>
 class Enable_Rewind_Via_Clone : public Enable_Can_Rewind<S, With>
 {
 protected:
-  using Super = S;
+  using Super = Enable_Can_Rewind<S, With>;
 public:
   using Super::Super;
 
@@ -52,11 +51,11 @@ public:
 };
 
 template <class S, class With>
-class Enable_Rewind_By_Member_Name : public Enable_Can_Rewind<S, With>
+class Enable_Rewind_R : public Enable_Can_Rewind<S, With>
 {
 protected:
-  using Super = S;
-  using Enable_Rewind_By_Member_Name_Access = Enable_Rewind_By_Member_Name;
+  using Super    = Enable_Can_Rewind<S, With>;
+  using Rewind_R = Enable_Rewind_R;
 public:
   using Super::Super;
 

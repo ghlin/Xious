@@ -119,7 +119,7 @@ Str xprintf_impl(const Args &...fmt_and_args)
 {
   auto size = std::snprintf(nullptr, 0, fmt_and_args...);
 
-  constexpr size_t DEFAULT_CAPACITY = 512;
+  constexpr decltype(size) DEFAULT_CAPACITY = 512;
 
   Xi_debug_check (size <= DEFAULT_CAPACITY);
 
