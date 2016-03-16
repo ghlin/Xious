@@ -31,6 +31,7 @@
  * DEBUG MODE HERE
  */
 
+#define debug_or_protect      public
 #define Xi_debug_check(expr)  Xi_runtime_check(expr)
 #define Xi_debug_log(...)     Xi_log(__VA_ARGS__)
 #define Xi_debug_only         if (false) { } else
@@ -38,6 +39,7 @@
 
 #else
 
+#define debug_or_protect      protected
 #define Xi_debug_check(expr)  do { } while (false)
 #define Xi_debug_log(...)     do { } while (false)
 #define Xi_debug_only         if (true) { } else
@@ -106,7 +108,7 @@ namespace details {
 template <typename ...Args>
 static inline
 auto xprintf_impl(std::FILE     *stream,
-                   const Args &...fmt_and_args)
+                  const Args &...fmt_and_args)
 {
   return std::fprintf(stream, fmt_and_args...);
 }

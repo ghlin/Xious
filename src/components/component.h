@@ -31,22 +31,26 @@ using Select_Arg = typename Do_Select_Arg<T, Alt>::Type;
 template <class S, class With>
 class Obj_List : public S
 {
-protected:
+debug_or_protect:
   using Super = S;
-  using Super::Super;
   using Client = typename With::Client;
+
+public:
+  using Super::Super;
 private:
   struct Fallback
   {
     template <class T>
-    using apply = std::list<T>;
+    using apply = std::vector<T>;
   };
 protected:
-  using Obj_Type  = Handle<details::Select_Arg<typename With::Second, Task>>;
+  using Obj_Type  = details::Select_Arg<typename With::Second, Handle<Task>>;
   using List_Type = typename details::Select_Arg<typename With::Third, Fallback>::template apply<Obj_Type>;
 
   List_Type list;
 public:
+  Obj_List() { }
+
   template <class ...Args>
   Obj_List(Args &&...args)
     : list{ std::forward<Args>(args)... }

@@ -19,7 +19,7 @@ public:
 template <class S, class With>
 class Enable_Can_Rewind : public S
 {
-protected:
+debug_or_protect:
   using Super = S;
 public:
   using Super::Super;
@@ -33,7 +33,7 @@ public:
 template <class S, class With>
 class Enable_Rewind_Via_Clone : public Enable_Can_Rewind<S, With>
 {
-protected:
+debug_or_protect:
   using Super = Enable_Can_Rewind<S, With>;
 public:
   using Super::Super;
@@ -53,7 +53,7 @@ public:
 template <class S, class With>
 class Enable_Rewind_R : public Enable_Can_Rewind<S, With>
 {
-protected:
+debug_or_protect:
   using Super    = Enable_Can_Rewind<S, With>;
   using Rewind_R = Enable_Rewind_R;
 public:

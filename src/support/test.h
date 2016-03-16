@@ -61,17 +61,15 @@ struct Test_Dummy
 
 #define XI_UNIT_TEST_SCOPE XI_BOOTSTRAP_ON("run-unit-tests", { })
 
-#define XI_UNIT_TEST_CASE(token)                                     \
-  if (auto _ = ::Xi::details::Test_Dummy(token, XI_THIS_LOCATION())) \
-    for (int _ = 0; _ != 1; ++_)
+#define XI_UNIT_TEST_CASE(token)                                                           \
+  for (::Xi::details::Test_Dummy _ = ::Xi::details::Test_Dummy(token, XI_THIS_LOCATION()), \
+                               *__ = &_; __; __ = nullptr)
 
-#define XI_UNIT_MARK_RESULT(result) \
-  if (true) { ::Xi::test_util::mark(result); break; } else do { } while(false)
-
-#define XI_UNIT_MARK_PASSED() XI_UNIT_MARK_RESULT(true)
-
-#define XI_UNIT_MARK_FAILED() XI_UNIT_MARK_RESULT(false)
-
+#define XI_UT_MARK_RESULT(result)  ::Xi::test_util::mark(result)
+#define XI_UT_MARK_PASSED()        XI_UT_MARK_RESULT(true)
+#define XI_UT_MARK_FAILED()        XI_UT_MARK_RESULT(false)
+#define XI_UT_EXPECT(exp)          XI_UT_MARK_RESULT(static_cast<bool>(exp))
+#define XI_UT_EXPECT_EQ(want, got) XI_UT_EXPECT((want) == (got))
 
 #endif // end of include guard: TEST_H_INCLUDED_CHJOGUND
 

@@ -37,7 +37,7 @@ public:
 template <class S, class With>
 class Enable_Clone_Via_CCTOR : public S
 {
-protected:
+debug_or_protect:
   using Super = S;
 public:
   using Super::Super;
@@ -63,8 +63,9 @@ class Enable_Dump_By_Type : public S
 
     return the_classname;
   }
-protected:
+debug_or_protect:
   using Super = S;
+public:
   using Super::Super;
 
 public:
@@ -82,9 +83,9 @@ public:
 template <class B>
 using Extends = chain<With<B>>;
 
-template <class B, class D, class ...R>
+template <class With, class ...R>
 using Implements = chain
-                   < With<B, D>
+                   < With
                    , addin<Enable_Clone_Via_CCTOR>
                    , addin<Enable_Dump_By_Type>
                    , R...

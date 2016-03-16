@@ -5,10 +5,10 @@
 
 namespace Xi {
 
-class Wait_All_List : chain<With<Phased_Task, Wait_All_List, Task>, addin<Obj_List>>
+class Wait_All_List : public chain<With<Phased_Task, Wait_All_List>, addin<Obj_List>>
 {
-  mutable bool            done     = false;
-  mutable bool            iterated = false;
+  mutable bool done     = false;
+  mutable bool iterated = false;
 public:
   using Super::Super;
 
@@ -19,10 +19,10 @@ public:
   virtual void rewind() override final;
 };
 
-class Wait_Any_List : chain<With<Phased_Task, Wait_Any_List, Task>, addin<Obj_List>>
+class Wait_Any_List : public chain<With<Phased_Task, Wait_Any_List>, addin<Obj_List>>
 {
-  mutable bool            done     = false;
-  mutable bool            iterated = false;
+  mutable bool done     = false;
+  mutable bool iterated = false;
 public:
   using Super::Super;
 

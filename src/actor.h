@@ -18,6 +18,7 @@ class Enable_Simple_Update_Routine : public S
 protected:
   float_t        time_elpased = 0.0f;
 
+debug_or_protect:
   using Super = S;
 public:
   using Super::Super;
@@ -57,7 +58,7 @@ XI_GENERATE_TYPEDEF_DETECTOR(update_once);
 template <class S, class With>
 class Enable_Stated_Update_Routine : public S
 {
-protected:
+debug_or_protect:
   using Super = S;
 public:
   using Super::Super;

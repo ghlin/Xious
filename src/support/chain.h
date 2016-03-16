@@ -44,10 +44,11 @@ struct With
 template <class With, class ...R>
 class chain : public details::chain_impl<With, R..., details::End_Of_Chain>::Klass
 {
+debug_or_protect:
   using Base = typename details::chain_impl<With, R..., details::End_Of_Chain>::Klass;
-public:
   using Super = chain;
 
+public:
   using Base::Base;
 };
 
