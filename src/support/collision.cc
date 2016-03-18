@@ -41,6 +41,7 @@ XI_UNIT_TEST_SCOPE
   TEST(hit, line_model_tag, ray_model_tag, v(0, 0), v(1, 1), v(1, 0), v(-1, 1));
   TEST(hit, ray_model_tag, ray_model_tag, v(0, 0), v(1, 1), v(1, 0), v(-1, 1));
   TEST(hit, ray_model_tag, ray_model_tag, v(0, 0), v(1000, 1), v(1, 0), v(-1000, 1));
+  TEST(hit, ray_model_tag, circle_model_tag, v(-100, 100), v(1, 0), v(0, 0), 100);
   TEST(hit, circle_model_tag, ray_model_tag, v(0, 0), 100, v(-100, 100), v(1, 0));
   TEST(mis, circle_model_tag, ray_model_tag, v(0, 0), 100, v(100, 100), v(1, 0));
   TEST(mis, circle_model_tag, box_model_tag, v(0, 0), 100, v(100, 100), v(5, 5));

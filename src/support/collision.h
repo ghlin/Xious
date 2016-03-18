@@ -488,7 +488,7 @@ bool is_colliding(const   Box_Model_Tag    &,
     return true;
   }
 
-  auto rdir = glm::normalize(rcentre - lcentre) * rradius;
+  auto rdir = (rcentre - lcentre).normalize() * rradius;
 
   return is_colliding(point_model_tag, box_model_tag, rdir, lcentre, lborder);
 }
@@ -517,7 +517,7 @@ struct Collision_Test_Dispatch_Helper
              const M2   &m2,
              const Args &...args)
   {
-    return is_colliding(m1, m2, args...);
+    return ::Xi::details::is_colliding(m1, m2, args...);
   }
 };
 
@@ -533,7 +533,7 @@ struct Shift2<0u>
              const M2   &m2,
              const Args &...args)
   {
-    return is_colliding(m1, m2, args...);
+    return ::Xi::details::is_colliding(m1, m2, args...);
   }
 };
 

@@ -35,9 +35,16 @@ namespace Xi { namespace details {
 
 struct Test_Dummy
 {
+  static const char *padding()
+  {
+    return "  ";
+  }
+
   Test_Dummy(const Str &test, const Src_Location &sl)
   {
-    ::Xi::xprintf("Running test %s (from %s - %u)\n", test, sl.file, sl.line);
+    ::Xi::xprintf(stderr, "Running test %s ...\n", test);
+    ::Xi::xprintf(stderr, "%s :: from %s - %u\n",
+                  padding(), shortify_path(sl.file), sl.line);
 
     ::Xi::test_util::push_test(test, sl);
   }
@@ -51,6 +58,12 @@ struct Test_Dummy
   {
     if (!::Xi::test_util::marked())
       ::Xi::test_util::mark_passed();
+
+    auto result = ::Xi::test_util::marked_passed();
+
+    ::Xi::xprintf(stderr, "%s :: %s.\n",
+                  padding(),
+                  result ? "Passed" : "Failed");
 
     ::Xi::test_util::pop_test();
   }

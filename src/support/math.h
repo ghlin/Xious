@@ -16,7 +16,7 @@ bool eq(float_t lhs, float_t rhs)
 }
 
 static inline
-bool eq(vec_t lhs, vec_t rhs)
+bool eq(const vec_t &lhs, const vec_t &rhs)
 {
   return eq(lhs.x, rhs.x) && eq(lhs.y, rhs.y);
 }
@@ -28,15 +28,15 @@ bool is_zero(float_t v)
 }
 
 static inline
-bool is_zero(vec_t v)
+bool is_zero(const vec_t &v)
 {
   return eq(v, { 0.0f, 0.0f });
 }
 
 static inline
-bool is_parallel(vec_t a, vec_t b)
+bool is_parallel(const vec_t &a, const vec_t &b)
 {
-  return eq(glm::normalize(a), glm::normalize(b));
+  return eq(a.normalize(), b.normalize());
 }
 
 /*
@@ -100,7 +100,6 @@ bool diff_dir_approx_i(const vec_t &A, const vec_t &B)
   return dot_product(A, B) <= 0;
 }
 
-
 static inline
 bool same_sign(float_t a, float_t b)
 {
@@ -140,7 +139,7 @@ bool is_inside(const vec_t &point,
                const vec_t &centre,
                float_t      radius)
 {
-  return glm::distance(point, centre) <= radius;
+  return distance(point, centre) <= radius;
 }
 
 static inline

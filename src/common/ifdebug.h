@@ -2,6 +2,7 @@
 #define IFDEBUG_H_INCLUDED_FQK7BHGB
 
 #include "base.h"
+#include "pp.h"
 
 #define XI_DEBUG_MODE   1
 #define XI_RELEASE_MODE 0
@@ -15,6 +16,13 @@
 #endif
 
 #define Xi_log(...)   Xi::tracef(XI_THIS_LOCATION(), __VA_ARGS__)
+
+namespace Xi { namespace details {
+
+extern Str shortify_path(const Str &path);
+
+} // namespace details
+} // namespace Xi
 
 #define Xi_runtime_check(expr)                       \
   do { if (!(expr)) throw std::runtime_error(        \
@@ -58,7 +66,7 @@ struct Src_Location
 
   inline Str dump() const
   {
-    return "[ File: "s + u_stringify(file)
+    return "[ File: "s + details::shortify_path(file)
       +    ", Line: "s + u_stringify(line)
       +    ", Func: "s + u_stringify(func)
       +    " ]";
@@ -149,7 +157,7 @@ static inline
 void tracef(const Src_Location     &sl,
             const Args          &...fmt_and_args)
 {
-  xprintf(stderr, "[ %s, %s, %u ] - ", sl.file, sl.func, sl.line);
+  xprintf(stderr, "[ %s, %s, %u ] - ", details::shortify_path(sl.file), sl.func, sl.line);
   xprintf(stderr, fmt_and_args...);
   xprintf(stderr, "\n");
 }
