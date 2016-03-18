@@ -2,6 +2,7 @@
 *.out
 */app
 */Makefile
+build/b
 test/
 *.swp
 *.swo
