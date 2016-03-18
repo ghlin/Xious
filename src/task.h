@@ -8,6 +8,8 @@ namespace Xi {
 class Task : public Extends<Actor>
 {
 public:
+  using Super::Super;
+
   virtual bool complete() const;   /* default: aways false */
   virtual void rewind();           /* default: do nothing */
   virtual bool can_rewind() const; /* default: aways false */
@@ -73,6 +75,8 @@ class Simple_Task : public chain
                     >
 {
 public:
+  using Super::Super;
+
   virtual void update_routine(const Update_Details &ud) = 0;
 };
 
@@ -82,6 +86,8 @@ class Phased_Task : public chain
                     >
 {
 public:
+  using Super::Super;
+
   virtual void update_routine(const Update_Details &ud) = 0;
 
   virtual void before_update_routine(const Update_Details &ud);

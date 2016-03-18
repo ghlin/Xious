@@ -86,9 +86,9 @@ using Extends = chain<With<B>>;
 template <class With, class ...R>
 using Implements = chain
                    < With
-                   , addin<Enable_Clone_Via_CCTOR>
-                   , addin<Enable_Dump_By_Type>
                    , R...
+                   , addin<Enable_Dump_By_Type>
+                   , addin<Enable_Clone_Via_CCTOR>
                    >;
 
 } // namespace Xi

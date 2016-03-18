@@ -32,7 +32,7 @@ template <class S, class With>
 class Obj_List : public S
 {
 debug_or_protect:
-  using Super = S;
+  using Super  = S;
   using Client = typename With::Client;
 
 public:
@@ -44,8 +44,8 @@ private:
     using apply = std::vector<T>;
   };
 protected:
-  using Obj_Type  = details::Select_Arg<typename With::Second, Handle<Task>>;
-  using List_Type = typename details::Select_Arg<typename With::Third, Fallback>::template apply<Obj_Type>;
+  using Obj_Type  = details::Select_Arg<typename With::_2, Handle<Task>>;
+  using List_Type = typename details::Select_Arg<typename With::_3, Fallback>::template apply<Obj_Type>;
 
   List_Type list;
 public:

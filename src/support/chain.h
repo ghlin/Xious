@@ -30,14 +30,22 @@ struct With
 {
   using Dummy = details::Dummy;
 
-  using Args   = std::tuple<R..., Dummy, Dummy, Dummy>;
+  using Args   = std::tuple<R...,
+        Dummy, Dummy, Dummy, Dummy, Dummy, Dummy, Dummy, Dummy, Dummy>;
 
   using Super  = std::tuple_element_t<0, Args>;
   using Client = std::tuple_element_t<1, Args>;
 
-  using First  = std::tuple_element_t<1, Args>;
-  using Second = std::tuple_element_t<2, Args>;
-  using Third  = std::tuple_element_t<3, Args>;
+  using _0 = std::tuple_element_t<0, Args>;
+  using _1 = std::tuple_element_t<1, Args>;
+  using _2 = std::tuple_element_t<2, Args>;
+  using _3 = std::tuple_element_t<3, Args>;
+  using _4 = std::tuple_element_t<4, Args>;
+  using _5 = std::tuple_element_t<5, Args>;
+  using _6 = std::tuple_element_t<6, Args>;
+  using _7 = std::tuple_element_t<7, Args>;
+  using _8 = std::tuple_element_t<8, Args>;
+  using _9 = std::tuple_element_t<9, Args>;
 };
 
 // add Super typedef.

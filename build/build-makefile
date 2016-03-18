@@ -1,0 +1,11 @@
+#!/bin/sh
+
+XI_ROOT="`pwd`/.."
+export PATH="$PATH:$XI_ROOT/tools/puild"
+
+[ -d "$XI_ROOT/build/b" ] || mkdir "$XI_ROOT/build/b"
+
+puild ---d "$XI_ROOT/src" ---p strict c++1y debug brew ---o app > "$XI_ROOT/build/b/Makefile"
+
+
+

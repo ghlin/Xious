@@ -5,33 +5,78 @@
 
 namespace Xi {
 
-class Wait_All_List : public chain<With<Phased_Task, Wait_All_List>, addin<Obj_List>>
+
+struct Wait_All { static bool apply(bool r) { return r;  } };
+struct Wait_Any { static bool apply(bool r) { return !r; } };
+
+template <class Wait_Policy>
+class List_Task : public Implements<With<Phased_Task, List_Task<Wait_Policy>>, addin<Obj_List>>
 {
-  mutable bool done     = false;
-  mutable bool iterated = false;
+  mutable Opt<bool> cached = false;
+
+debug_or_protect:
+  using Super = typename List_Task::Super;
 public:
   using Super::Super;
 
-  Wait_All_List(Wait_All_List &wa) = default;
+  List_Task(List_Task &wa) = default;
 
-  virtual void update_routine(const Update_Details &ud) override final;
-  virtual bool complete() const override final;
-  virtual void rewind() override final;
+  inline void clear_cache()
+  {
+    cached = { };
+  }
+
+  virtual void update_routine(const Update_Details &ud) override final
+  {
+    bool done = Wait_Policy::apply(true);
+
+    for (auto &&task : this->list)
+    {
+      task->update(ud);
+
+      if (Wait_Policy::apply(!task->complete()))
+        done = true;
+    }
+
+    cached = { done };
+  }
+
+  virtual bool complete() const override final
+  {
+    if (cached)
+      return *cached;
+
+    bool done = Wait_Policy::apply(true);
+
+    for (auto &&task : this->list)
+    {
+      if (Wait_Policy::apply(!task->complete()))
+      {
+        done = true;
+        break;
+      }
+    }
+
+    cached = { done };
+
+    return done;
+  }
+
+  virtual void rewind() override final
+  {
+    cached = { false };
+
+    for (auto &&task : this->list)
+      task->rewind();
+  }
+
+  XI_PROP_EXPORT( (Cached, static_cast<bool>(cached), RO)
+                , (Policy, Wait_Policy::apply(true),  RO)
+                );
 };
 
-class Wait_Any_List : public chain<With<Phased_Task, Wait_Any_List>, addin<Obj_List>>
-{
-  mutable bool done     = false;
-  mutable bool iterated = false;
-public:
-  using Super::Super;
-
-  Wait_Any_List(Wait_Any_List &wa) = default;
-
-  virtual void update_routine(const Update_Details &ud) override final;
-  virtual bool complete() const override final;
-  virtual void rewind() override final;
-};
+using Wait_All_List = List_Task<Wait_All>;
+using Wait_Any_List = List_Task<Wait_Any>;
 
 } // namespace Xi
 
