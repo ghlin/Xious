@@ -1,0 +1,3 @@
+[submodule "tools/puild"]
+	path = tools/puild
+	url = git@github.com:ghlin/puild.git
