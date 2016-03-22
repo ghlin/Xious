@@ -4,6 +4,8 @@
 #include "../config.h"
 #include "../actor.h"
 #include "../task.h"
+#include "../valueprovider.h"
+
 
 namespace Xi {
 
