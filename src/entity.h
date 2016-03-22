@@ -5,7 +5,7 @@
 
 namespace Xi {
 
-class Entity : public Extends<Actor>
+class Entity : public Extends<Controller>
 {
 public:
   enum Update_Status : uint32_t
@@ -63,7 +63,7 @@ public:
     return render;
   }
 protected:
-  virtual void update(const Update_Details &ud) override
+  virtual void update_logic(const Update_Details &ud) override
   {
     Xi_debug_check(task);
     Xi_debug_check(collider);

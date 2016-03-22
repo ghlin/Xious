@@ -14,11 +14,6 @@ XI_UNIT_TEST_SCOPE
   xprintf(stderr, "Expr.Reduced = %s\n\n", Reduce<typename decltype(expr)::Expr>::dump(0))
 
   Display_Expr($3 * $2);
-  Display_Expr($sin($x));
-  Display_Expr($sin($x) / _$x());
-  Display_Expr($sin($x) / _$x() / _$x());
-  Display_Expr($sin($x) / _$x() / _$x() / _$x());
-  Display_Expr($sin($x) / _$x() / _$x() / _$x() / _$x());
 }
 
 

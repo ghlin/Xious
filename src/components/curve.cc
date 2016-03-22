@@ -38,32 +38,6 @@ XI_UNIT_TEST_SCOPE
           expr.dump(),
           (expr / _$x()).dump(),
           (expr / _$x() / _$x()).dump());
-
-  auto grow_pi = [] (const Update_Details &, auto *args)
-  {
-    args->_0 += M_PI / 4;
-  };
-
-  auto sin_cos = make_expr_value_provider($sin($x), grow_pi);
-  // sin(x)
-  // cos(x)
-  // -sin(x) / sin(-x)
-
-  xprintf(stderr,
-          "(%f, %f, %f) should be (%f, %f, %f)\n",
-          sin_cos->get_position_value(),
-          sin_cos->get_velocity_value(),
-          sin_cos->get_acceleration_value(),
-          std::sin(0), std::cos(0), std::sin(0));
-
-  sin_cos->update({ });
-
-  xprintf(stderr,
-          "(%f, %f, %f) should be (%f, %f, %f)\n",
-          sin_cos->get_position_value(),
-          sin_cos->get_velocity_value(),
-          sin_cos->get_acceleration_value(),
-          std::sin(M_PI / 4), std::cos(M_PI / 4), std::sin(-M_PI / 4));
 }
 
 } // namespace Xi

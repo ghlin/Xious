@@ -351,66 +351,6 @@ struct Compose
   }
 };
 
-template <class U_> struct Cos;
-
-template <class U_>
-struct Sin : Unary_Field<U_>
-{
-  static constexpr Mask _CONSTANT = check_mask<U_>(M_CONSTANT)
-    ? M_CONSTANT : 0;
-
-  using MI = Meta_Info<M_UNARY | M_EXPR, Sin>;
-  using U  = U_;
-
-  static double apply(args)
-  {
-    return std::sin(U_::apply($args));
-  }
-
-  static Str dump(int)
-  {
-    return "sin(" + U_::dump(0) + ")";
-  }
-
-  using SU = Reduce<U_>;
-
-  using Simpilified = Sin<SU>;
-
-  template <Integer D> using UD = typename U_::template Deriv<D>;
-
-  template <Integer D>
-  using Deriv = Mul<Cos<U_>, UD<D>>;
-};
-
-template <class U_>
-struct Cos : Unary_Field<U_>
-{
-  static constexpr Mask _CONSTANT = check_mask<U_>(M_CONSTANT)
-    ? M_CONSTANT : 0;
-
-  using MI = Meta_Info<M_UNARY | M_EXPR, Cos>;
-  using U  = U_;
-
-  static double apply(args)
-  {
-    return std::cos(U_::apply($args));
-  }
-
-  static Str dump(int)
-  {
-    return "cos(" + U_::dump(0) + ")";
-  }
-
-  using SU = Reduce<U_>;
-
-  using Simpilified = Cos<SU>;
-
-  template <Integer D> using UD = typename U_::template Deriv<D>;
-
-  template <Integer D>
-  using Deriv = Mul<Make_Integer<-1>, Mul<Sin<U_>, UD<D>>>;
-};
-
 template <class T>
 struct Term
 {
@@ -448,18 +388,6 @@ template <class L, class R>
 constexpr auto operator *(const Term<L> &, const Term<R> &)
 {
   return Term<Reduce<Mul<L, R>>>();
-}
-
-template <class U>
-static constexpr auto $sin(const Term<U> &)
-{
-  return Term<Reduce<Sin<Reduce<U>>>>();
-}
-
-template <class U>
-static constexpr auto $cos(const Term<U> &)
-{
-  return Term<Reduce<Cos<Reduce<U>>>>();
 }
 
 template <class X, Integer D>
