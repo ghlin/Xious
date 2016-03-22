@@ -143,6 +143,33 @@ public:
   }
 };
 
+class Simple_Actor : public chain
+                     < With<Actor, Simple_Actor>
+                     , addin<Enable_Simple_Update_Routine>
+                     >
+{
+public:
+  using Super::Super;
+
+  virtual void update_routine(const Update_Details &ud) = 0;
+};
+
+class Phased_Actor : public chain
+                     < With<Actor, Phased_Actor>
+                     , addin<Enable_Stated_Update_Routine>
+                     >
+{
+public:
+  using Super::Super;
+
+  virtual void update_routine(const Update_Details &ud) = 0;
+
+  virtual void before_update_routine(const Update_Details &ud);
+  virtual void after_update_routine(const Update_Details &ud);
+
+  using update_once = std::true_type;
+};
+
 
 } // namespace Xi
 

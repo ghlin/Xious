@@ -86,13 +86,15 @@ XI_UNIT_TEST_SCOPE
 
   XI_UNIT_TEST_CASE("steps.rewind.three_times.0")
   { ++ud.frame; steps->update(ud); XI_UT_EXPECT(!steps->complete()); }
+
   XI_UNIT_TEST_CASE("steps.rewind.three_times.1")
   { ++ud.frame; steps->update(ud); XI_UT_EXPECT(!steps->complete()); }
+
   XI_UNIT_TEST_CASE("steps.rewind.three_times.2")
   { ++ud.frame; steps->update(ud); XI_UT_EXPECT(!steps->complete()); }
+
   XI_UNIT_TEST_CASE("steps.rewind.three_times.3")
   { ++ud.frame; steps->update(ud); XI_UT_EXPECT(steps->complete()); }
-
 }
 
 } // namespace Xi
