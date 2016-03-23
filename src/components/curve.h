@@ -26,6 +26,12 @@ protected:
 
   Expr_Args args;
 public:
+  using Super::Super;
+
+  Expr_Provider(Expr_Args args)
+    : args(std::move(args))
+  { }
+
   virtual float_t get_position_value()     const
   {
     return Position_Expr::apply(args._0, args._1, args._2, args._3, args._4,
@@ -53,8 +59,13 @@ class X_Expr_Provider : public Implements
 {
   Lambda lambda;
 public:
+
+  using X_Expr_Provider::Super::Super;
+
   template <class X_Lambda>
-  X_Expr_Provider(X_Lambda &lambda) : lambda(std::forward<X_Lambda>(lambda))
+  X_Expr_Provider(Expr_Args &&init, X_Lambda &lambda)
+    : X_Expr_Provider::Super(std::move(init))
+    , lambda(std::forward<X_Lambda>(lambda))
   {    }
 
   virtual void update_routine(const Update_Details &ud)
@@ -66,13 +77,16 @@ public:
 } // namespace details
 
 template <class Term, class Lambda>
-static inline auto make_expr_value_provider(const Term &,
-                                            Lambda    &&lambda)
+static inline auto make_expr_value_provider(const Term        &,
+                                            Lambda           &&lambda,
+                                            details::Expr_Args init = { })
 {
   using Expr = typename Term::Expr;
 
-  return make_handle<details::X_Expr_Provider<Expr, std::decay_t<Lambda>>>(std::forward<Lambda>(lambda));
+  return make_handle<details::X_Expr_Provider<Expr, std::decay_t<Lambda>>>(std::move(init), std::forward<Lambda>(lambda));
 }
+
+// TODO: make_curve(MC_TYPE, MC_TIMEOUT_POLICY, Duration, Change_Value) 2016-03-22 20:30:06
 
 } // namespace Xi
 

@@ -48,8 +48,8 @@ template < template <typename ...> class Container = std::vector
          , typename Lambda
          >
 static inline
-auto u_map(const Input  &input,
-           Lambda      &&lambda)
+auto u_map(const Input& input,
+           Lambda&&     lambda)
 {
   using Element = std::decay_t<decltype (lambda(*std::cbegin(input)))>;
   using Output  = Container<Element>;
@@ -70,8 +70,8 @@ template < template <typename ...> class Container = std::vector
          , typename Lambda
          >
 static inline
-auto u_map(const std::initializer_list<Element>  &input,
-           Lambda                               &&lambda)
+auto u_map(const std::initializer_list<Element>& input,
+           Lambda&&                              lambda)
 {
   using Output  = Container<Element>;
 
@@ -91,14 +91,14 @@ template < class    Container
          , typename Lambda
          >
 static inline
-auto u_filter_cp(const Container  &input,
-                 Lambda          &&lambda)
+auto u_filter_cp(const Container& input,
+                 Lambda&&         lambda)
 {
   Container output;
 
   auto out_iter = std::back_inserter(output);
 
-  for (auto &&ele : input)
+  for (auto&& ele : input)
     if (std::forward<Lambda>(lambda)(ele))
       out_iter = ele;
 
@@ -111,8 +111,8 @@ template < class    Container
          , typename Lambda
          >
 static inline
-auto u_filter_inp(Container  &input,
-                  Lambda    &&lambda)
+auto u_filter_inp(Container& input,
+                  Lambda&&   lambda)
 {
   input.erase(std::remove_if(std::begin(input),
                              std::end(input),
